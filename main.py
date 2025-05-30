@@ -1,4 +1,5 @@
 from pygame import*
+init()
 
 width,height=1400,700
 screen=display.set_mode((width,height))
@@ -11,6 +12,13 @@ YELLOW=(255,255,0)
 WHITE=(255,255,255)
 myClock=time.Clock()
 running=True
+
+logo = image.load("assets\\mainScreenAssets\\FSELogo.png")
+logo = transform.scale(logo, (1024/4, 1024/4))
+mainBackground = image.load("assets\\mainScreenAssets\\FSEMainBackground.png", "png")
+mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
+mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
+mixer.music.play(10)
 
 # Main screen boxes
 PlayBox = Rect(500, 330, 400, 100)
@@ -154,6 +162,8 @@ while running:
     
     if screenNum == 1:
         screen.fill(BLACK)
+        screen.blit(mainBackground, (0, 0))
+        screen.blit(logo, (700-logo.get_height()/2, 50))
         draw.rect(screen, GREEN, PlayBox)
         draw.rect(screen, BLUE, HowToPlayBox)
         draw.rect(screen, GREY, SettingsBox)
