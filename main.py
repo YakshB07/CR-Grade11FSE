@@ -1,5 +1,135 @@
 from pygame import*
 
+assassinAttack=[]
+assassinDead = []
+assassinRun = []
+
+femaleWizardAttack = []
+femaleWizardDead = []
+femaleWizardRun = []
+
+firemenAttack = []
+firemenDead = []
+firemenRun = []
+
+golemAttack = []
+golemDead = []
+golemRun = []
+
+jackAttack = []
+jackDead = []
+jackRun = []
+
+knightAttack = []
+knightDead = []
+knightRun = []
+
+maleWizardAttack = []
+maleWizardDead = []
+maleWizardRun = []
+
+spearmenAttack = []
+spearmenDead = []
+spearmenWalk = []
+
+
+for i in range(1,9):
+    assassinAttack.append(image.load("assets/assassin-attack/assassin-attack"+ str(i) +".png"))
+
+for i in range(1,5):
+    assassinDead.append(image.load("assets/assassin-dead/assassin-dead"+ str(i) +".png"))
+
+for i in range(1,9):
+    assassinRun.append(image.load("assets/assassin-run/assassin-run"+ str(i) +".png"))
+
+
+
+for i in range(1,8):
+    femaleWizardAttack.append(image.load("assets/femaleWizard-attack/femaleWizard-attack"+ str(i) +".png"))
+
+for i in range(1,6):
+    femaleWizardDead.append(image.load("assets/femaleWizard-dead/femaleWizard-dead"+ str(i) +".png"))
+
+for i in range(1,9):
+    femaleWizardRun.append(image.load("assets/femaleWizard-run/femaleWizard-run"+ str(i) +".png"))
+
+
+
+for i in range(1,4):
+    firemenAttack.append(image.load("assets/firemen-attack/" + str(i) + ".png"))
+for i in range(1,6):
+    firemenDead.append(image.load("assets/firemen-dead/"+ str(i) +".png"))
+
+for i in range(1,8):
+    firemenRun.append(image.load("assets/firemen-run/"+ str(i) +".png"))
+
+
+
+for i in range(1,7):
+    golemAttack.append(image.load("assets/golem-attack/" + str(i) + ".png"))
+for i in range(1,6):
+    golemDead.append(image.load("assets/golem-dead/"+ str(i) +".png"))
+
+for i in range(1,8):
+    golemRun.append(image.load("assets/golem-run/"+ str(i) +".png"))
+
+
+
+for i in range(1,5):
+    jackAttack.append(image.load("assets/jack-attack/jack-attack"+ str(i) +".png"))
+
+for i in range(1,5):
+    jackDead.append(image.load("assets/jack-dead/jack-dead"+ str(i) +".png"))
+
+for i in range(1,7):
+    jackRun.append(image.load("assets/jack-run/jack-run"+ str(i) +".png"))
+
+
+
+for i in range(1,5):
+    knightAttack.append(image.load("assets/knight-attack/knight-attack"+ str(i) +".png"))
+
+for i in range(1,5):
+    knightDead.append(image.load("assets/knight-dead/knight-dead"+ str(i) +".png"))
+
+for i in range(1,7):
+    knightRun.append(image.load("assets/knight-run/knight-run"+ str(i) +".png"))
+
+
+
+for i in range(1,8):
+    maleWizardAttack.append(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"))
+
+for i in range(1,7):
+    maleWizardDead.append(image.load("assets/maleWizard-dead/maleWizard-dead"+ str(i) +".png"))
+
+for i in range(1,9):
+    maleWizardRun.append(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"))
+
+
+
+
+for i in range(1,8):
+    maleWizardAttack.append(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"))
+
+for i in range(1,7):
+    maleWizardDead.append(image.load("assets/maleWizard-dead/maleWizard-dead"+ str(i) +".png"))
+
+for i in range(1,9):
+    maleWizardRun.append(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"))
+
+
+
+for i in range(1,4):
+    spearmenAttack.append(image.load("assets/spearmen-attack/spearmen-attack"+ str(i) +".png"))
+
+for i in range(1,5):
+    spearmenDead.append(image.load("assets/spearmen-dead/spearmen-dead"+ str(i) +".png"))
+
+for i in range(1,6):
+    spearmenWalk.append(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"))
+
+
 width,height=1400,700
 screen=display.set_mode((width,height))
 RED=(255,0,0)
