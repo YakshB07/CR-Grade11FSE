@@ -161,7 +161,7 @@ draw.rect(screen, GREY, SettingsBox)
 
 # Card Shown
 continueBox = Rect(1175, 575, 200, 100)
-screenNum = 1
+screenNum = 3
 
 grid1 = [[0, 0, 0, 0],
         [0, 0, 0, 0],
