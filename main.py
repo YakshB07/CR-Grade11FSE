@@ -294,7 +294,7 @@ while running:
     if screenNum == 1:
         screen.fill(BLACK)
         screen.blit(mainBackground, (0, 0))
-        screen.blit(logo, (700-logo.get_height()/2, 50))
+        # screen.blit(logo, (700-logo.get_height()/2, 50))
         draw.rect(screen, GREEN, PlayBox)
         draw.rect(screen, BLUE, HowToPlayBox)
         draw.rect(screen, GREY, SettingsBox)
