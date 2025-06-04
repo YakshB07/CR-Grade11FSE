@@ -182,9 +182,9 @@ mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
 
 mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
 mixer.music.play(10)
-gameBackground = image.load("assets\\mainScreenAssets\\GameBackground.png", "png")
+gameBackground = image.load("assets/mainScreenAssets/GameBackground.png", "png")
 gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*0.92, gameBackground.get_height()*0.7))
-mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
+mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
 mixer.music.play(10)
 
 # Main screen boxes 
