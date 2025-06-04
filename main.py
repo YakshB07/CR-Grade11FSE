@@ -179,8 +179,13 @@ logo = image.load("assets/mainScreenAssets/FSELogo.png")
 logo = transform.scale(logo, (1024/4, 1024/4))
 mainBackground = image.load("assets/mainScreenAssets/FSEMainBackground.png", "png")
 mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
-# mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
-# mixer.music.play(10)
+
+mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
+mixer.music.play(10)
+gameBackground = image.load("assets\\mainScreenAssets\\GameBackground.png", "png")
+gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*0.92, gameBackground.get_height()*0.7))
+mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
+mixer.music.play(10)
 
 # Main screen boxes 
 PlayBox = Rect(500, 330, 400, 100)
@@ -458,6 +463,7 @@ while running:
 
     elif screenNum == 3:
         screen.fill(BLACK)
+        screen.blit(gameBackground, (0, 0))
         #Left Grid 
         for i in range(9):
             draw.line(screen, GREEN, (360, i*70+70), (640, i*70+70), 2)
