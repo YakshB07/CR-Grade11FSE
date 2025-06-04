@@ -191,6 +191,7 @@ mixer.music.play(10)
 PlayBox = Rect(500, 330, 400, 100)
 HowToPlayBox = Rect(500, 455, 400, 100)
 SettingsBox = Rect(500, 580, 400, 100)
+backRect = Rect(0,600,100,100)
 draw.rect(screen, GREEN, PlayBox)
 draw.rect(screen, BLUE, HowToPlayBox)
 draw.rect(screen, GREY, SettingsBox)
@@ -209,7 +210,30 @@ textfont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
 reshuffletext = textfont.render("RESHUFFLE", True, BLACK)
 readyText = textfont.render("Ready!!" ,True, BLACK)
 waitingText = textfont.render("Waiting...", True, BLACK)
+frontFont = font.Font("assets/Clash-Royale-Font/font.ttf", 40)
+playText = frontFont.render("Play", True, BLACK)
+HowToPlayText = frontFont.render("How to Play", True, BLACK)
+settingsText = frontFont.render("Settings", True, BLACK)
+backText = frontFont.render("Back", True,WHITE)
 
+gameDescriptionFont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
+
+gameDescription = """How to Play: Knight Royale
+
+Knight Royale is a fast-paced 2-player strategy game where you use random cards to destroy your opponent's towers.
+
+Step 1: Card Selection
+    At the start, you'll get a random deck. You can reshuffle up to 3 times. Click 'Ready' when     you're set.
+
+Step 2: The Battle
+    - Player 1: W, A, S, D to place cards
+    - Player 2: I, J, K, L to place cards
+    Each card costs elixir — manage it wisely and play smart to attack and defend.
+
+Step 3: Destroy the Towers
+    Break through your opponent's defense and destroy their towers before they destroy 
+    yours!
+"""
 
 
 prev_mb = (0, 0, 0)
@@ -335,6 +359,34 @@ def moveInGrid(dir, w, h, player):
                             grid2[i-1][j] = 1
                         return
 
+
+def render_text_rect(surface, text, font, color, rect):
+    lines = text.split('\n')  # Split by manual line breaks first
+    space_width = font.size(' ')[0]
+
+    x, y = rect.topleft
+    max_width = rect.width
+
+    for line in lines:
+        words = line.split(' ')
+        for word in words:
+            word_surface = font.render(word, True, color)
+            word_width, word_height = word_surface.get_size()
+
+            # If word doesn't fit, move to next line
+            if x + word_width >= rect.right:
+                x = rect.left
+                y += word_height
+
+            surface.blit(word_surface, (x, y))
+            x += word_width + space_width
+
+        # After each \n line, move to new line
+        x = rect.left
+        y += font.get_linesize()
+
+
+
 for i in range(5):
     blueRandom = sample(range(1, 9), 5)  
     redRandom = sample(range(1, 9), 5) 
@@ -378,10 +430,18 @@ while running:
         screen.blit(mainBackground, (0, 0))
         # screen.blit(logo, (700-logo.get_height()/2, 50))
         draw.rect(screen, GREEN, PlayBox)
+        screen.blit(playText,(PlayBox[0]+140, PlayBox[1]+25))
         draw.rect(screen, BLUE, HowToPlayBox)
+        screen.blit(HowToPlayText,(HowToPlayBox[0]+30, HowToPlayBox[1]+25))
         draw.rect(screen, GREY, SettingsBox)
+        screen.blit(settingsText,(SettingsBox[0]+90, SettingsBox[1]+25))
+
         if PlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 2
+        elif HowToPlayBox.collidepoint(mx, my) and mb[0]:
+            screenNum = 4
+        elif SettingsBox.collidepoint(mx,my) and mb[0]:
+            screenNum = 5
 
 
 
@@ -389,6 +449,8 @@ while running:
         screen.fill(BLACK)
         draw.line(screen, RED, (695, 0), (695, 695), 10)
 
+        draw.rect(screen,BLACK,backRect)
+        screen.blit(backText,(backRect[0]+30, backRect[1]+20))
         # Draw player cards
         for i in range(5):
             draw.rect(screen, WHITE, bluePlayerCard[i], 5)
@@ -460,9 +522,15 @@ while running:
             waitRed = False
             blueReshuffleCount = 0
             redReshuffleCount = 0
+            
+        if backRect.collidepoint(mx, my) and mb[0]:
+            print("yes")
+            screenNum == 1
+
+        
+
 
     elif screenNum == 3:
-        screen.fill(BLACK)
         screen.blit(gameBackground, (0, 0))
         #Left Grid 
         for i in range(9):
@@ -507,7 +575,14 @@ while running:
             draw.rect(screen,WHITE,(1360,150,1360,i*40+40),2)
         for i in range(4):
             draw.rect(screen,WHITE,(1220,150,140,i*100+100),2)
+    
 
+    elif screenNum == 4:
+        screen.fill(BLACK)
+        textRect = Rect(50, 50, 1350, 300)
+        render_text_rect(screen, gameDescription, gameDescriptionFont, WHITE, textRect)
+
+    
 
     prev_mb = mb
 
