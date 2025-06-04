@@ -180,12 +180,21 @@ logo = transform.scale(logo, (1024/4, 1024/4))
 mainBackground = image.load("assets/mainScreenAssets/FSEMainBackground.png", "png")
 mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
 
+
+# mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
+# mixer.music.play(10)
+gameBackground = image.load("assets/mainScreenAssets/GameBackground.png", "png")
+gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*1, gameBackground.get_height()*1))
+# mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
+# mixer.music.play(10)
+
 mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
 mixer.music.play(10)
 gameBackground = image.load("assets/mainScreenAssets/GameBackground.png", "png")
 gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*0.92, gameBackground.get_height()*0.7))
 mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
 mixer.music.play(10)
+
 
 # Main screen boxes 
 PlayBox = Rect(500, 330, 400, 100)
@@ -251,8 +260,10 @@ waitRed = False
 
 redReshuffle = Rect(940,450,225,75)
 redConfirm = Rect(940,550,225,75)
+redFinalCards = []
+blueFinalCards = []
 
-
+redInd = 0
 screenNum = 1
 
 grid1 = [[0, 0, 0, 0],
@@ -310,7 +321,7 @@ def moveInGrid(dir, w, h, player):
                 for j in range(w):
                     if grid1[i][j] == 1:
                         grid1[i][j] = 0
-                        print(i)
+                        # print(i)
                         if i == 0:
                             grid1[h-1][j] = 1
                         else:
@@ -352,7 +363,7 @@ def moveInGrid(dir, w, h, player):
                 for j in range(w):
                     if grid2[i][j] == 1:
                         grid2[i][j] = 0
-                        print(i)
+                        # print(i)
                         if i == 0:
                             grid2[h-1][j] = 1
                         else:
@@ -421,9 +432,24 @@ while running:
                 moveInGrid("down", 4, 8, 2)
             if evt.key == K_i:
                 moveInGrid("up", 4, 8, 2)
+            if evt.key == K_1:
+                redInd = 0
+            if evt.key == K_2:
+                redInd = 1
+            if evt.key == K_3:
+                redInd = 2
+            if evt.key == K_4:
+                redInd = 3
+            if evt.key == K_u:
+                currDeckRed = [redFinalCards[i] for i in range(4)]
+                for a in redFinalCards:
+                    if currDeckRed.count(a) == 0:
+                        redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
+                        print("click23")
     
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
+    pressed_keys = key.get_pressed()
     
     if screenNum == 1:
         screen.fill(BLACK)
@@ -454,10 +480,13 @@ while running:
         # Draw player cards
         for i in range(5):
             draw.rect(screen, WHITE, bluePlayerCard[i], 5)
+            blueFinalCards.append(faceCards[blueRandom[i]])
             screen.blit(faceCards[blueRandom[i]], bluePlayerCard[i])
         for i in range(5):
             draw.rect(screen, WHITE, RedPlayerCard[i], 5)
+            redFinalCards.append(faceCards[redRandom[i]])
             screen.blit(faceCards[redRandom[i]], RedPlayerCard[i])
+        
 
         # Handle reshuffles (only once per click, max 3 times)
         if blueReshuffle.collidepoint(mx, my) and mb[0] and not prev_mb[0] and blueReshuffleCount < 3:
@@ -531,7 +560,10 @@ while running:
 
 
     elif screenNum == 3:
-        screen.blit(gameBackground, (0, 0))
+
+        screen.fill(BLACK)
+        screen.blit(gameBackground, (-50, 0))
+
         #Left Grid 
         for i in range(9):
             draw.line(screen, GREEN, (360, i*70+70), (640, i*70+70), 2)
@@ -549,14 +581,14 @@ while running:
             for j in range(4):
                 if grid1[i][j] == 1:
                     # print(i, j)
-                    draw.rect(screen, BLUE, (j*70+360, i*70+70, 70, 70))
+                    draw.rect(screen, BLUE, (j*70+360, i*70+70, 71, 71))
 
         #Red Player       
         for i in range(8):
             for j in range(4):
                 if grid2[i][j] == 1:
                     # print(i, j)
-                    draw.rect(screen, RED, (j*70+745, i*70+70, 70, 70)) 
+                    draw.rect(screen, RED, (j*70+745, i*70+70, 71, 71)) 
                         
 
 
@@ -566,7 +598,8 @@ while running:
         for i in range(10):
             draw.rect(screen,WHITE,(0,150,40,i*40+40),2)
         for i in range(4):
-            draw.rect(screen,WHITE,(40,150,140,i*100+100),2)
+            screen.blit(transform.scale(blueFinalCards[i], (100, 100)), (60,i*100+150,140,100))
+            draw.rect(screen,WHITE,(40,i*100+150,140,100),2)
 
         #Red cards area
         draw.rect(screen,RED,(1217,147,183,406),2)
@@ -574,6 +607,15 @@ while running:
         for i in range(10):
             draw.rect(screen,WHITE,(1360,150,1360,i*40+40),2)
         for i in range(4):
+
+            screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240,i*100+150,140,100))
+            redCardSelectRect = Rect(1220,i*100+150,140,100)
+            if i == redInd:
+                draw.rect(screen,RED,redCardSelectRect,2)
+            else:
+                draw.rect(screen,WHITE,redCardSelectRect,2)
+        
+
             draw.rect(screen,WHITE,(1220,150,140,i*100+100),2)
     
 
@@ -584,10 +626,10 @@ while running:
 
     
 
+
     prev_mb = mb
 
-    mx,my=mouse.get_pos()
-    mb=mouse.get_pressed()
+
       
     myClock.tick(60)
     display.flip()
