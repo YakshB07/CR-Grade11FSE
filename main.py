@@ -193,37 +193,7 @@ draw.rect(screen, GREY, SettingsBox)
 
 # Card Shown
 continueBox = Rect(1175, 575, 200, 100)
-
-bluePlayerCard =[Rect(100,45,135,150),Rect(285,45,135,150), Rect(470,45,135,150), Rect(200,225,135,150), Rect(385,225,135,150)]
-RedPlayerCard =[Rect(795,45,135,150),Rect(980,45,135,150), Rect(1165,45,135,150), Rect(895,225,135,150), Rect(1080,225,135,150)]
-
-blueReshuffle = Rect(240,450,225,75)
-blueConfirm = Rect(240,550,225,75)
-textfont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
-reshuffletext = textfont.render("RESHUFFLE", True, BLACK)
-readyText = textfont.render("Ready!!" ,True, BLACK)
-waitingText = textfont.render("Waiting...", True, BLACK)
-
-
-
-prev_mb = (0, 0, 0)
-
-blueReshuffleCount = 0
-redReshuffleCount = 0
-mouseClicked = False
-
-
-blueReady = False
-redReady = False
-
-waitBlue = False
-waitRed = False
-
-redReshuffle = Rect(940,450,225,75)
-redConfirm = Rect(940,550,225,75)
-
-
-screenNum = 1
+screenNum = 3
 
 grid1 = [[0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -370,7 +340,7 @@ while running:
     if screenNum == 1:
         screen.fill(BLACK)
         screen.blit(mainBackground, (0, 0))
-        screen.blit(logo, (700-logo.get_height()/2, 50))
+        # screen.blit(logo, (700-logo.get_height()/2, 50))
         draw.rect(screen, GREEN, PlayBox)
         draw.rect(screen, BLUE, HowToPlayBox)
         draw.rect(screen, GREY, SettingsBox)
