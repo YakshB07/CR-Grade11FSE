@@ -221,6 +221,8 @@ waitRed = False
 
 redReshuffle = Rect(940,450,225,75)
 redConfirm = Rect(940,550,225,75)
+redFinalCards = []
+blueFinalCards = []
 
 
 screenNum = 1
@@ -280,7 +282,7 @@ def moveInGrid(dir, w, h, player):
                 for j in range(w):
                     if grid1[i][j] == 1:
                         grid1[i][j] = 0
-                        print(i)
+                        # print(i)
                         if i == 0:
                             grid1[h-1][j] = 1
                         else:
@@ -322,7 +324,7 @@ def moveInGrid(dir, w, h, player):
                 for j in range(w):
                     if grid2[i][j] == 1:
                         grid2[i][j] = 0
-                        print(i)
+                        # print(i)
                         if i == 0:
                             grid2[h-1][j] = 1
                         else:
@@ -366,6 +368,7 @@ while running:
     
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
+    pressed_keys = key.get_pressed()
     
     if screenNum == 1:
         screen.fill(BLACK)
@@ -386,10 +389,13 @@ while running:
         # Draw player cards
         for i in range(5):
             draw.rect(screen, WHITE, bluePlayerCard[i], 5)
+            blueFinalCards.append(faceCards[blueRandom[i]])
             screen.blit(faceCards[blueRandom[i]], bluePlayerCard[i])
         for i in range(5):
             draw.rect(screen, WHITE, RedPlayerCard[i], 5)
+            redFinalCards.append(faceCards[redRandom[i]])
             screen.blit(faceCards[redRandom[i]], RedPlayerCard[i])
+        
 
         # Handle reshuffles (only once per click, max 3 times)
         if blueReshuffle.collidepoint(mx, my) and mb[0] and not prev_mb[0] and blueReshuffleCount < 3:
@@ -491,7 +497,8 @@ while running:
         for i in range(10):
             draw.rect(screen,WHITE,(0,150,40,i*40+40),2)
         for i in range(4):
-            draw.rect(screen,WHITE,(40,150,140,i*100+100),2)
+            screen.blit(transform.scale(blueFinalCards[i], (100, 100)), (60,i*100+150,140,100))
+            draw.rect(screen,WHITE,(40,i*100+150,140,100),2)
 
         #Red cards area
         draw.rect(screen,RED,(1217,147,183,406),2)
@@ -499,13 +506,24 @@ while running:
         for i in range(10):
             draw.rect(screen,WHITE,(1360,150,1360,i*40+40),2)
         for i in range(4):
-            draw.rect(screen,WHITE,(1220,150,140,i*100+100),2)
+            for r in redFinalCards:
+                print(r[0])
+            screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240,i*100+150,140,100))
+            redCardSelectRect = Rect(1220,i*100+150,140,100)
+            if pressed_keys[K_1]:
+                print("clicked")
+                ind = 0
+                currDeckRed = [redFinalCards[i] for i in range(4)]
+                for a in redFinalCards:
+                    if currDeckRed.count(a) == 0:
+                        redFinalCards[ind], redFinalCards[4] = redFinalCards[4], redFinalCards[ind]
+                        print("click23")
+            draw.rect(screen,WHITE,redCardSelectRect,2)
 
 
     prev_mb = mb
 
-    mx,my=mouse.get_pos()
-    mb=mouse.get_pressed()
+
       
     myClock.tick(60)
     display.flip()
