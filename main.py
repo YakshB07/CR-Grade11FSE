@@ -180,12 +180,12 @@ logo = transform.scale(logo, (1024/4, 1024/4))
 mainBackground = image.load("assets/mainScreenAssets/FSEMainBackground.png", "png")
 mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
 
-mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
-mixer.music.play(10)
+# mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
+# mixer.music.play(10)
 gameBackground = image.load("assets\\mainScreenAssets\\GameBackground.png", "png")
-gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*0.92, gameBackground.get_height()*0.7))
-mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
-mixer.music.play(10)
+gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*1, gameBackground.get_height()*1))
+# mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
+# mixer.music.play(10)
 
 # Main screen boxes 
 PlayBox = Rect(500, 330, 400, 100)
@@ -230,7 +230,7 @@ redConfirm = Rect(940,550,225,75)
 redFinalCards = []
 blueFinalCards = []
 
-
+redInd = 0
 screenNum = 1
 
 grid1 = [[0, 0, 0, 0],
@@ -371,6 +371,20 @@ while running:
                 moveInGrid("down", 4, 8, 2)
             if evt.key == K_i:
                 moveInGrid("up", 4, 8, 2)
+            if evt.key == K_1:
+                redInd = 0
+            if evt.key == K_2:
+                redInd = 1
+            if evt.key == K_3:
+                redInd = 2
+            if evt.key == K_4:
+                redInd = 3
+            if evt.key == K_u:
+                currDeckRed = [redFinalCards[i] for i in range(4)]
+                for a in redFinalCards:
+                    if currDeckRed.count(a) == 0:
+                        redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
+                        print("click23")
     
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
@@ -469,7 +483,7 @@ while running:
 
     elif screenNum == 3:
         screen.fill(BLACK)
-        screen.blit(gameBackground, (0, 0))
+        screen.blit(gameBackground, (-50, 0))
         #Left Grid 
         for i in range(9):
             draw.line(screen, GREEN, (360, i*70+70), (640, i*70+70), 2)
@@ -487,14 +501,14 @@ while running:
             for j in range(4):
                 if grid1[i][j] == 1:
                     # print(i, j)
-                    draw.rect(screen, BLUE, (j*70+360, i*70+70, 70, 70))
+                    draw.rect(screen, BLUE, (j*70+360, i*70+70, 71, 71))
 
         #Red Player       
         for i in range(8):
             for j in range(4):
                 if grid2[i][j] == 1:
                     # print(i, j)
-                    draw.rect(screen, RED, (j*70+745, i*70+70, 70, 70)) 
+                    draw.rect(screen, RED, (j*70+745, i*70+70, 71, 71)) 
                         
 
 
@@ -513,20 +527,13 @@ while running:
         for i in range(10):
             draw.rect(screen,WHITE,(1360,150,1360,i*40+40),2)
         for i in range(4):
-            for r in redFinalCards:
-                print(r[0])
             screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240,i*100+150,140,100))
             redCardSelectRect = Rect(1220,i*100+150,140,100)
-            if pressed_keys[K_1]:
-                print("clicked")
-                ind = 0
-                currDeckRed = [redFinalCards[i] for i in range(4)]
-                for a in redFinalCards:
-                    if currDeckRed.count(a) == 0:
-                        redFinalCards[ind], redFinalCards[4] = redFinalCards[4], redFinalCards[ind]
-                        print("click23")
-            draw.rect(screen,WHITE,redCardSelectRect,2)
-
+            if i == redInd:
+                draw.rect(screen,RED,redCardSelectRect,2)
+            else:
+                draw.rect(screen,WHITE,redCardSelectRect,2)
+        
 
     prev_mb = mb
 
