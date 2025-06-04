@@ -1,5 +1,21 @@
-from pygame import*
+from pygame import *
+from random import *
+
 init()
+
+
+width,height=1400,700
+screen=display.set_mode((width,height))
+RED=(255,0,0)
+GREY=(127,127,127)
+BLACK=(0,0,0)
+BLUE=(0,0,255)
+GREEN=(0,255,0)
+YELLOW=(255,255,0)
+WHITE=(255,255,255)
+myClock=time.Clock()
+running=True
+
 
 assassinAttack=[]
 assassinDead = []
@@ -12,6 +28,12 @@ femaleWizardRun = []
 firemenAttack = []
 firemenDead = []
 firemenRun = []
+
+
+icemenAttack = []
+icemenDead = []
+icemenRun = []
+
 
 golemAttack = []
 golemDead = []
@@ -33,6 +55,10 @@ spearmenAttack = []
 spearmenDead = []
 spearmenWalk = []
 
+
+faceCards = []
+blueRandom = []
+redRandom = []
 
 for i in range(1,9):
     assassinAttack.append(image.load("assets/assassin-attack/assassin-attack"+ str(i) +".png"))
@@ -63,6 +89,15 @@ for i in range(1,6):
 
 for i in range(1,8):
     firemenRun.append(image.load("assets/firemen-run/"+ str(i) +".png"))
+
+
+for i in range(1,4):
+    icemenAttack.append(image.load("assets/iceman-attack/" + str(i) + ".png"))
+for i in range(1,7):
+    icemenDead.append(image.load("assets/iceman-dead/"+ str(i) +".png"))
+
+for i in range(1,6):
+    icemenRun.append(image.load("assets/iceman-run/"+ str(i) +".png"))
 
 
 
@@ -131,28 +166,28 @@ for i in range(1,6):
     spearmenWalk.append(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"))
 
 
-width,height=1400,700
-screen=display.set_mode((width,height))
-RED=(255,0,0)
-GREY=(127,127,127)
-BLACK=(0,0,0)
-BLUE=(0,0,255)
-GREEN=(0,255,0)
-YELLOW=(255,255,0)
-WHITE=(255,255,255)
-myClock=time.Clock()
-running=True
 
-logo = image.load("assets\\mainScreenAssets\\FSELogo.png")
+for i in range(9):
+    faceCards.append(image.load("assets/mainFace/mainface"+ str(i+1) +".png"))
+
+
+for i in range(9):
+    faceCards[i] = transform.scale(faceCards[i], (130,130))
+
+
+logo = image.load("assets/mainScreenAssets/FSELogo.png")
 logo = transform.scale(logo, (1024/4, 1024/4))
-mainBackground = image.load("assets\\mainScreenAssets\\FSEMainBackground.png", "png")
+mainBackground = image.load("assets/mainScreenAssets/FSEMainBackground.png", "png")
 mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
+
+mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
+mixer.music.play(10)
 gameBackground = image.load("assets\\mainScreenAssets\\GameBackground.png", "png")
 gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*0.92, gameBackground.get_height()*0.7))
 mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
 mixer.music.play(10)
 
-# Main screen boxes
+# Main screen boxes 
 PlayBox = Rect(500, 330, 400, 100)
 HowToPlayBox = Rect(500, 455, 400, 100)
 SettingsBox = Rect(500, 580, 400, 100)
@@ -163,7 +198,38 @@ draw.rect(screen, GREY, SettingsBox)
 
 # Card Shown
 continueBox = Rect(1175, 575, 200, 100)
-screenNum = 3
+
+
+bluePlayerCard =[Rect(100,45,135,150),Rect(285,45,135,150), Rect(470,45,135,150), Rect(200,225,135,150), Rect(385,225,135,150)]
+RedPlayerCard =[Rect(795,45,135,150),Rect(980,45,135,150), Rect(1165,45,135,150), Rect(895,225,135,150), Rect(1080,225,135,150)]
+
+blueReshuffle = Rect(240,450,225,75)
+blueConfirm = Rect(240,550,225,75)
+textfont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
+reshuffletext = textfont.render("RESHUFFLE", True, BLACK)
+readyText = textfont.render("Ready!!" ,True, BLACK)
+waitingText = textfont.render("Waiting...", True, BLACK)
+
+
+
+prev_mb = (0, 0, 0)
+
+blueReshuffleCount = 0
+redReshuffleCount = 0
+mouseClicked = False
+
+
+blueReady = False
+redReady = False
+
+waitBlue = False
+waitRed = False
+
+redReshuffle = Rect(940,450,225,75)
+redConfirm = Rect(940,550,225,75)
+
+
+screenNum = 1
 
 grid1 = [[0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -268,7 +334,21 @@ def moveInGrid(dir, w, h, player):
                         else:
                             grid2[i-1][j] = 1
                         return
+
+for i in range(5):
+    blueRandom = sample(range(1, 9), 5)  
+    redRandom = sample(range(1, 9), 5) 
+
+for i in range(5):
+        #     screen.blit(faceCards[blueRandom[i]], bluePlayerCard[i])
+    # print(blueRandom[i])
+
+    print(len(faceCards))
+
 while running:
+    blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
+    redLeft = textfont.render(f"{3 - redReshuffleCount} left", True, WHITE)
+
     for evt in event.get():
         if evt.type==QUIT:
             running=False
@@ -302,12 +382,85 @@ while running:
         draw.rect(screen, GREY, SettingsBox)
         if PlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 2
+
+
+
     elif screenNum == 2:
         screen.fill(BLACK)
         draw.line(screen, RED, (695, 0), (695, 695), 10)
-        draw.rect(screen, GREEN, continueBox)
-        if continueBox.collidepoint(mx, my) and mb[0]:
+
+        # Draw player cards
+        for i in range(5):
+            draw.rect(screen, WHITE, bluePlayerCard[i], 5)
+            screen.blit(faceCards[blueRandom[i]], bluePlayerCard[i])
+        for i in range(5):
+            draw.rect(screen, WHITE, RedPlayerCard[i], 5)
+            screen.blit(faceCards[redRandom[i]], RedPlayerCard[i])
+
+        # Handle reshuffles (only once per click, max 3 times)
+        if blueReshuffle.collidepoint(mx, my) and mb[0] and not prev_mb[0] and blueReshuffleCount < 3:
+            blueRandom = sample(range(1, 9), 5)
+            blueReshuffleCount += 1
+
+        if redReshuffle.collidepoint(mx, my) and mb[0] and not prev_mb[0] and redReshuffleCount < 3:
+            redRandom = sample(range(1, 9), 5)
+            redReshuffleCount += 1
+
+        # Draw reshuffle buttons (gray if used up)
+        if blueReshuffleCount < 3:
+            draw.rect(screen, WHITE, blueReshuffle)
+        else:
+            draw.rect(screen, (100, 100, 100), blueReshuffle)
+
+        if redReshuffleCount < 3:
+            draw.rect(screen, WHITE, redReshuffle)
+        else:
+            draw.rect(screen, (100, 100, 100), redReshuffle)
+
+        # Draw confirm buttons
+        draw.rect(screen, GREEN, blueConfirm)
+        draw.rect(screen, GREEN, redConfirm)
+
+        # Draw button text
+        screen.blit(reshuffletext, (blueReshuffle[0] + 35, blueReshuffle[1] + 25))
+        screen.blit(reshuffletext, (redReshuffle[0] + 35, redReshuffle[1] + 25))
+        screen.blit(readyText, (blueConfirm[0] + 55, blueConfirm[1] + 25))
+        screen.blit(readyText, (redConfirm[0] + 55, redConfirm[1] + 25))
+
+        # Draw reshuffles left text (updates every frame)
+        blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
+        redLeft = textfont.render(f"{3 - redReshuffleCount} left", True, WHITE)
+        screen.blit(blueLeft, (blueReshuffle[0] + 245, blueReshuffle[1] + 35))
+        screen.blit(redLeft, (redReshuffle[0] + 245, redReshuffle[1] + 35))
+
+        # Confirm logic (once per click)
+        if blueConfirm.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
+            blueReady = True
+            waitBlue = True
+
+        if redConfirm.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
+            redReady = True
+            waitRed = True
+
+        # Waiting state visuals
+        if waitBlue:
+            draw.rect(screen, GREEN, blueConfirm)
+            screen.blit(waitingText, (blueConfirm[0] + 55, blueConfirm[1] + 25))
+
+        if waitRed:
+            draw.rect(screen, GREEN, redConfirm)
+            screen.blit(waitingText, (redConfirm[0] + 55, redConfirm[1] + 25))
+
+        # Move to next screen if both ready
+        if blueReady and redReady:
             screenNum = 3
+            blueReady = False
+            redReady = False
+            waitBlue = False
+            waitRed = False
+            blueReshuffleCount = 0
+            redReshuffleCount = 0
+
     elif screenNum == 3:
         screen.fill(BLACK)
         screen.blit(gameBackground, (0, 0))
@@ -337,6 +490,8 @@ while running:
                     # print(i, j)
                     draw.rect(screen, RED, (j*70+745, i*70+70, 70, 70)) 
                         
+
+
         #Blue cards area
         draw.rect(screen,BLUE,(0,147,183,406),2)
         draw.line(screen,WHITE,(40,150),(40,550))
@@ -354,7 +509,7 @@ while running:
             draw.rect(screen,WHITE,(1220,150,140,i*100+100),2)
 
 
-
+    prev_mb = mb
 
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
