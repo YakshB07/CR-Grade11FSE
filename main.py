@@ -3,7 +3,6 @@ from random import *
 
 init()
 
-
 width,height=1400,700
 screen=display.set_mode((width,height))
 RED=(255,0,0)
@@ -15,7 +14,6 @@ YELLOW=(255,255,0)
 WHITE=(255,255,255)
 myClock=time.Clock()
 running=True
-
 
 assassinAttack=[]
 assassinDead = []
@@ -180,7 +178,6 @@ logo = transform.scale(logo, (1024/4, 1024/4))
 mainBackground = image.load("assets/mainScreenAssets/FSEMainBackground.png", "png")
 mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
 
-
 # mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
 # mixer.music.play(10)
 gameBackground = image.load("assets/mainScreenAssets/GameBackground.png", "png")
@@ -188,19 +185,10 @@ gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*1, 
 # mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
 # mixer.music.play(10)
 
-mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
-mixer.music.play(10)
-gameBackground = image.load("assets/mainScreenAssets/GameBackground.png", "png")
-gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*0.92, gameBackground.get_height()*0.7))
-mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
-mixer.music.play(10)
-
-
 # Main screen boxes 
-PlayBox = Rect(500, 330, 400, 100)
-HowToPlayBox = Rect(500, 455, 400, 100)
-SettingsBox = Rect(500, 580, 400, 100)
-backRect = Rect(0,600,100,100)
+PlayBox = Rect(50, 500, 400, 100)
+HowToPlayBox = Rect(500, 500, 400, 100)
+SettingsBox = Rect(950, 500, 400, 100)
 draw.rect(screen, GREEN, PlayBox)
 draw.rect(screen, BLUE, HowToPlayBox)
 draw.rect(screen, GREY, SettingsBox)
@@ -223,7 +211,9 @@ frontFont = font.Font("assets/Clash-Royale-Font/font.ttf", 40)
 playText = frontFont.render("Play", True, BLACK)
 HowToPlayText = frontFont.render("How to Play", True, BLACK)
 settingsText = frontFont.render("Settings", True, BLACK)
-backText = frontFont.render("Back", True,WHITE)
+
+backFont = font.Font("assets/Clash-Royale-Font/font.ttf", 30)
+backText = backFont.render("Back", True,WHITE)
 
 gameDescriptionFont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
 
@@ -244,7 +234,6 @@ Step 3: Destroy the Towers
     yours!
 """
 
-
 prev_mb = (0, 0, 0)
 
 blueReshuffleCount = 0
@@ -263,6 +252,7 @@ redConfirm = Rect(940,550,225,75)
 redFinalCards = []
 blueFinalCards = []
 
+backRect = Rect(0,600,200,100)
 redInd = 0
 screenNum = 1
 
@@ -369,6 +359,8 @@ def moveInGrid(dir, w, h, player):
                         else:
                             grid2[i-1][j] = 1
                         return
+                    
+
 
 
 def render_text_rect(surface, text, font, color, rect):
@@ -396,17 +388,10 @@ def render_text_rect(surface, text, font, color, rect):
         x = rect.left
         y += font.get_linesize()
 
-
-
 for i in range(5):
     blueRandom = sample(range(1, 9), 5)  
     redRandom = sample(range(1, 9), 5) 
 
-for i in range(5):
-        #     screen.blit(faceCards[blueRandom[i]], bluePlayerCard[i])
-    # print(blueRandom[i])
-
-    print(len(faceCards))
 
 while running:
     blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
@@ -456,27 +441,24 @@ while running:
         screen.blit(mainBackground, (0, 0))
         # screen.blit(logo, (700-logo.get_height()/2, 50))
         draw.rect(screen, GREEN, PlayBox)
-        screen.blit(playText,(PlayBox[0]+140, PlayBox[1]+25))
+        screen.blit(playText,(PlayBox[0]+140,PlayBox[1]+20))
         draw.rect(screen, BLUE, HowToPlayBox)
-        screen.blit(HowToPlayText,(HowToPlayBox[0]+30, HowToPlayBox[1]+25))
+        screen.blit(HowToPlayText,(HowToPlayBox[0]+30,HowToPlayBox[1]+20))
         draw.rect(screen, GREY, SettingsBox)
-        screen.blit(settingsText,(SettingsBox[0]+90, SettingsBox[1]+25))
+        screen.blit(settingsText,(SettingsBox[0]+90,SettingsBox[1]+20))
 
         if PlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 2
-        elif HowToPlayBox.collidepoint(mx, my) and mb[0]:
+        if HowToPlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 4
-        elif SettingsBox.collidepoint(mx,my) and mb[0]:
-            screenNum = 5
 
 
 
     elif screenNum == 2:
         screen.fill(BLACK)
         draw.line(screen, RED, (695, 0), (695, 695), 10)
-
         draw.rect(screen,BLACK,backRect)
-        screen.blit(backText,(backRect[0]+30, backRect[1]+20))
+        screen.blit(backText,(backRect[0]+40, backRect[1]+40))
         # Draw player cards
         for i in range(5):
             draw.rect(screen, WHITE, bluePlayerCard[i], 5)
@@ -551,19 +533,13 @@ while running:
             waitRed = False
             blueReshuffleCount = 0
             redReshuffleCount = 0
-            
-        if backRect.collidepoint(mx, my) and mb[0]:
-            print("yes")
-            screenNum == 1
 
-        
-
+        if backRect.collidepoint(mx,my) and mb[0]:
+            screenNum = 1
 
     elif screenNum == 3:
-
         screen.fill(BLACK)
         screen.blit(gameBackground, (-50, 0))
-
         #Left Grid 
         for i in range(9):
             draw.line(screen, GREEN, (360, i*70+70), (640, i*70+70), 2)
@@ -591,7 +567,6 @@ while running:
                     draw.rect(screen, RED, (j*70+745, i*70+70, 71, 71)) 
                         
 
-
         #Blue cards area
         draw.rect(screen,BLUE,(0,147,183,406),2)
         draw.line(screen,WHITE,(40,150),(40,550))
@@ -607,7 +582,6 @@ while running:
         for i in range(10):
             draw.rect(screen,WHITE,(1360,150,1360,i*40+40),2)
         for i in range(4):
-
             screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240,i*100+150,140,100))
             redCardSelectRect = Rect(1220,i*100+150,140,100)
             if i == redInd:
@@ -615,21 +589,18 @@ while running:
             else:
                 draw.rect(screen,WHITE,redCardSelectRect,2)
         
-
-            draw.rect(screen,WHITE,(1220,150,140,i*100+100),2)
-    
-
     elif screenNum == 4:
         screen.fill(BLACK)
+        draw.rect(screen,BLACK,backRect)
+        screen.blit(backText,(backRect[0]+30, backRect[1]+40))
+
         textRect = Rect(50, 50, 1350, 300)
         render_text_rect(screen, gameDescription, gameDescriptionFont, WHITE, textRect)
 
-    
-
+        if backRect.collidepoint(mx, my) and mb[0]:
+            screenNum = 1
 
     prev_mb = mb
-
-
       
     myClock.tick(60)
     display.flip()
