@@ -256,23 +256,25 @@ backRect = Rect(0,600,200,100)
 redInd = 0
 screenNum = 1
 
-grid1 = [[0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [1, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]]
+grid1 = [[0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0]]
 
-grid2 = [[0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 1],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]]
+grid2 = [[0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0]]
 
 def moveInGrid(dir, w, h, player):
     if player == 1:
@@ -363,7 +365,7 @@ def moveInGrid(dir, w, h, player):
 
 
 
-def render_text_rect(surface, text, font, color, rect):
+def renderText(surface, text, font, color, rect):
     lines = text.split('\n')  # Split by manual line breaks first
     space_width = font.size(' ')[0]
 
@@ -402,21 +404,21 @@ while running:
             running=False
         if evt.type == KEYDOWN:
             if evt.key == K_d:
-                moveInGrid("right", 4, 8, 1)
+                moveInGrid("right", 6, 9, 1)
             if evt.key == K_a:
-                moveInGrid("left", 4, 8, 1)
+                moveInGrid("left", 6, 9, 1)
             if evt.key == K_s:
-                moveInGrid("down", 4, 8, 1)
+                moveInGrid("down", 6, 9, 1)
             if evt.key == K_w:
-                moveInGrid("up", 4, 8, 1)
+                moveInGrid("up", 6, 9, 1)
             if evt.key == K_l:
-                moveInGrid("right", 4, 8, 2)
+                moveInGrid("right", 6, 9, 2)
             if evt.key == K_j:
-                moveInGrid("left", 4, 8, 2)
+                moveInGrid("left", 6, 9, 2)
             if evt.key == K_k:
-                moveInGrid("down", 4, 8, 2)
+                moveInGrid("down", 6, 9, 2)
             if evt.key == K_i:
-                moveInGrid("up", 4, 8, 2)
+                moveInGrid("up", 6, 9, 2)
             if evt.key == K_1:
                 redInd = 0
             if evt.key == K_2:
@@ -451,7 +453,8 @@ while running:
             screenNum = 2
         if HowToPlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 4
-
+        if SettingsBox.collidepoint(mx,my) and mb[0]:
+            screenNum = 5
 
 
     elif screenNum == 2:
@@ -541,30 +544,30 @@ while running:
         screen.fill(BLACK)
         screen.blit(gameBackground, (-50, 0))
         #Left Grid 
-        for i in range(9):
-            draw.line(screen, GREEN, (360, i*70+70), (640, i*70+70), 2)
-        for i in range(5):
-            draw.line(screen, GREEN, (i*70+360, 70), (i*70+360, 630), 2)
+        for i in range(10):
+            draw.line(screen, GREEN, (350, i*46.5+210), (628, i*46.5+210), 2)
+        for i in range(7):
+            draw.line(screen, GREEN, (i*47+347, 210), (i*47+347, 630), 2)
 
         #Right Grid
-        for i in range(9):
-            draw.line(screen, GREEN, (745, i*70+70), (1025, i*70+70), 2)
-        for i in range(5):
-            draw.line(screen, GREEN, (i*70+745, 70), (i*70+745, 630), 2)
+        for i in range(10):
+            draw.line(screen, GREEN, (760, i*46.5+210), (1040, i*46.5+210), 2)
+        for i in range(7):
+            draw.line(screen, GREEN, (i*46.5+760, 210), (i*46.5+760, 630), 2)
         
         #Blue player
-        for i in range(8):
-            for j in range(4):
+        for i in range(9):
+            for j in range(6):
                 if grid1[i][j] == 1:
                     # print(i, j)
-                    draw.rect(screen, BLUE, (j*70+360, i*70+70, 71, 71))
+                    draw.rect(screen, BLUE, (j*47+347, i*46.5+210, 50,50))
 
         #Red Player       
-        for i in range(8):
-            for j in range(4):
+        for i in range(9):
+            for j in range(6):
                 if grid2[i][j] == 1:
-                    # print(i, j)
-                    draw.rect(screen, RED, (j*70+745, i*70+70, 71, 71)) 
+                    # print(i, j)d
+                    draw.rect(screen, RED, (j*47+755, i*46.5+210, 50, 50))
                         
 
         #Blue cards area
@@ -595,8 +598,15 @@ while running:
         screen.blit(backText,(backRect[0]+30, backRect[1]+40))
 
         textRect = Rect(50, 50, 1350, 300)
-        render_text_rect(screen, gameDescription, gameDescriptionFont, WHITE, textRect)
+        renderText(screen, gameDescription, gameDescriptionFont, WHITE, textRect)
 
+        if backRect.collidepoint(mx, my) and mb[0]:
+            screenNum = 1
+
+    elif screenNum == 5:
+        screen.fill(BLACK)
+        draw.rect(screen,BLACK,backRect)
+        screen.blit(backText,(backRect[0]+30, backRect[1]+40))
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
 
