@@ -256,6 +256,9 @@ backRect = Rect(0,600,200,100)
 redInd = 0
 screenNum = 1
 
+
+runbutton = Rect(50,200,100,100)
+attackButton = Rect(450, 200 , 100, 100)
 grid1 = [[0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
@@ -394,6 +397,11 @@ for i in range(5):
     blueRandom = sample(range(1, 9), 5)  
     redRandom = sample(range(1, 9), 5) 
 
+jackRunIndex = 0
+frameCounter = 0
+jackFrameSpeed = 0.1  # adjust for animation speed
+runningAnimation = False  # flag to keep running
+attackAnimation = False
 
 while running:
     blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
@@ -402,6 +410,14 @@ while running:
     for evt in event.get():
         if evt.type==QUIT:
             running=False
+        if evt.type == MOUSEBUTTONDOWN:
+            if runbutton.collidepoint(evt.pos):
+                runningAnimation = True
+                attackAnimation =False
+            if attackButton.collidepoint(evt.pos):
+                runningAnimation = False
+                attackAnimation =True
+
         if evt.type == KEYDOWN:
             if evt.key == K_d:
                 moveInGrid("right", 6, 9, 1)
@@ -448,6 +464,30 @@ while running:
         screen.blit(HowToPlayText,(HowToPlayBox[0]+30,HowToPlayBox[1]+20))
         draw.rect(screen, GREY, SettingsBox)
         screen.blit(settingsText,(SettingsBox[0]+90,SettingsBox[1]+20))
+
+
+
+
+        draw.rect(screen,BLACK,runbutton)
+        draw.rect(screen,BLACK,attackButton)
+
+        if runningAnimation:
+            frameCounter += jackFrameSpeed
+            if frameCounter >= len(jackRun):
+                frameCounter = 0
+            jackRunIndex = int(frameCounter)
+            screen.blit(jackRun[jackRunIndex], (500, 500))
+
+
+        if attackAnimation:
+            frameCounter += jackFrameSpeed
+            if frameCounter >= len(jackAttack):
+                frameCounter = 0
+            jackRunIndex = int(frameCounter)
+            screen.blit(jackAttack[jackRunIndex], (500, 500))
+
+
+
 
         if PlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 2
