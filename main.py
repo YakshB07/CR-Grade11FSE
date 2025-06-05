@@ -15,6 +15,36 @@ WHITE=(255,255,255)
 myClock=time.Clock()
 running=True
 
+redLeftTower = [1, 2, 3]
+
+class Wizard:
+    def __init__(self, health, damage, width, speed, path):
+        self.health = health
+        self.damage = damage
+        self.speed = speed
+        self.rect = Rect(0, 0, width, width)
+        self.path = path
+        self.posIndex = 0
+    
+    def updatePos(self):
+        if self.posIndex >= len(self.path):
+            return
+        targetX, targetY = self.path[-1]
+        dx = targetX - width/2
+        dy = targetY - width/2
+        dist = (dx**2 + dy**2) **0.5
+        
+        if dist < 10:
+            self.posIndex += 1
+            self.rect.center == self.path[-1]
+        else:
+            self.rect.x = int(self.speed * dx/dist)
+            self.rect.y = int(self.speed * dy/dist)
+        
+redPlayer = Wizard(100, 100, 2, 20, redLeftTower)
+
+
+
 assassinAttack=[]
 assassinDead = []
 assassinRun = []
@@ -542,7 +572,9 @@ while running:
 
     elif screenNum == 3:
         screen.fill(BLACK)
+
         screen.blit(gameBackground, (-50, 0))
+
         #Left Grid 
         for i in range(10):
             draw.line(screen, GREEN, (350, i*46.5+210), (628, i*46.5+210), 2)
