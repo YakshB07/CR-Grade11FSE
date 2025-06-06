@@ -15,7 +15,11 @@ WHITE=(255,255,255)
 myClock=time.Clock()
 running=True
 
+<<<<<<< Updated upstream
 redLeftTower = [1, 2, 3]
+=======
+redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
+>>>>>>> Stashed changes
 
 class Wizard:
     def __init__(self, health, damage, width, speed, path):
@@ -41,9 +45,13 @@ class Wizard:
             self.rect.x = int(self.speed * dx/dist)
             self.rect.y = int(self.speed * dy/dist)
         
+<<<<<<< Updated upstream
 redPlayer = Wizard(100, 100, 2, 20, redLeftTower)
 
 
+=======
+redPlayer = Wizard(100, 100, 2, 20, redLeftTowerPath)
+>>>>>>> Stashed changes
 
 assassinAttack=[]
 assassinDead = []
@@ -623,6 +631,8 @@ while running:
                 draw.rect(screen,RED,redCardSelectRect,2)
             else:
                 draw.rect(screen,WHITE,redCardSelectRect,2)
+        for p in redLeftTowerPath:
+            draw.circle(screen, GREEN, p, 10)
         
     elif screenNum == 4:
         screen.fill(BLACK)
