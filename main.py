@@ -16,7 +16,11 @@ myClock=time.Clock()
 running=True
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 redLeftTower = [1, 2, 3]
+=======
+redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
+>>>>>>> Stashed changes
 =======
 redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
 >>>>>>> Stashed changes
@@ -46,9 +50,13 @@ class Wizard:
             self.rect.y = int(self.speed * dy/dist)
         
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 redPlayer = Wizard(100, 100, 2, 20, redLeftTower)
 
 
+=======
+redPlayer = Wizard(100, 100, 2, 20, redLeftTowerPath)
+>>>>>>> Stashed changes
 =======
 redPlayer = Wizard(100, 100, 2, 20, redLeftTowerPath)
 >>>>>>> Stashed changes
