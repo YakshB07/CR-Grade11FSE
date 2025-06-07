@@ -21,7 +21,7 @@ class Troop:
         self.rect = pygame.Rect(0, 0, self.size, self.size)
         self.path = path
         self.pos_index = 0
-        self.speed = 2
+        self.speed = 3
         self.rect.center = self.path[0]
 
     def update(self):
@@ -32,19 +32,21 @@ class Troop:
         dx = target_x - self.rect.centerx
         dy = target_y - self.rect.centery
         dist = (dx**2 + dy**2) ** 0.5
-
+        # print(dist, dx, dy)
         if dist < 2:
             self.rect.center = self.path[self.pos_index]
             self.pos_index += 1
         else:
-            print(dist)
-            self.rect.x += int(self.speed * dx / dist)
-            self.rect.y += int(self.speed * dy / dist)
+            self.rect.x += dx/dist * self.speed
+            self.rect.y += dy/dist * self.speed
+            # print(self.rect.x)
+            # print(target_x, target_y)
 
     def draw(self, surface):
         pygame.draw.rect(surface, BLUE, self.rect)
 
 
+tower = pygame.Rect((WIDTH // 4)-25, 75, 50, 50)
 # Define a fixed "lane" path: Middle bottom → top lane → target
 path = [
     (WIDTH // 2, HEIGHT - 50),   # Start middle bottom
@@ -60,6 +62,7 @@ path1 = [
 ]
 
 troop = Troop(path)
+count = 0
 
 # Game loop
 while True:
@@ -67,19 +70,31 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if tower.collidepoint(mx, my):
+                    count += 1
 
     troop.update()
 
     WIN.fill(WHITE)
-    troop.draw(WIN)
+    
     mb = pygame.mouse.get_pressed()
     mx, my = pygame.mouse.get_pos()
-    if mb[0]:
+    if mb[1]:
         path.append((mx, my))
-    elif mb[1]:
-        troop.path = path1
-    elif mb[2]:
-        troop.path = path
+    if mb[2]:
+        troop.rect.center = (mx, my)
+    
+
+    if count > 5:
+        pygame.draw.rect(WIN, WHITE, tower)
+        path.append((800, 600))
+    else:
+        pygame.draw.rect(WIN, (0, 0, 0), tower)
+    
+    troop.draw(WIN)
+    
     
 
     # Draw the path for visualization

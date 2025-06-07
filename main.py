@@ -15,51 +15,45 @@ WHITE=(255,255,255)
 myClock=time.Clock()
 running=True
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-redLeftTower = [1, 2, 3]
-=======
+
 redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
->>>>>>> Stashed changes
-=======
-redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
->>>>>>> Stashed changes
+
 
 class Wizard:
     def __init__(self, health, damage, width, speed, path):
         self.health = health
         self.damage = damage
         self.speed = speed
-        self.rect = Rect(0, 0, width, width)
+        self.sizeRect = Rect(0, 0, width, width)
         self.path = path
+        self.sizeRect.center = self.path[0]
         self.posIndex = 0
     
     def updatePos(self):
         if self.posIndex >= len(self.path):
             return
-        targetX, targetY = self.path[-1]
-        dx = targetX - width/2
-        dy = targetY - width/2
+        targetX, targetY = self.path[self.posIndex]
+        print(targetX, targetY)
+        dx = targetX - self.sizeRect.centerx
+        dy = targetY - self.sizeRect.centery
+        # print(targetY, self.sizeRect.y, dy)
         dist = (dx**2 + dy**2) **0.5
         
         if dist < 10:
             self.posIndex += 1
-            self.rect.center == self.path[-1]
+            self.sizeRect.center == self.path[-1]
+            print("reached")
         else:
-            self.rect.x = int(self.speed * dx/dist)
-            self.rect.y = int(self.speed * dy/dist)
+            
+            self.sizeRect.centerx += int(self.speed * dx/dist)
+            self.sizeRect.centery += int(self.speed * dy/dist)
+            
         
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-redPlayer = Wizard(100, 100, 2, 20, redLeftTower)
+    def drawSprite(self):
+        draw.rect(screen, RED, self.sizeRect)
+        
 
-
-=======
-redPlayer = Wizard(100, 100, 2, 20, redLeftTowerPath)
->>>>>>> Stashed changes
-=======
-redPlayer = Wizard(100, 100, 2, 20, redLeftTowerPath)
->>>>>>> Stashed changes
+wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath)
 
 assassinAttack=[]
 assassinDead = []
@@ -478,7 +472,7 @@ while running:
                 for a in redFinalCards:
                     if currDeckRed.count(a) == 0:
                         redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
-                        print("click23")
+
     
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
@@ -588,8 +582,8 @@ while running:
 
     elif screenNum == 3:
         screen.fill(BLACK)
-
         screen.blit(gameBackground, (-50, 0))
+        
 
         #Left Grid 
         for i in range(10):
@@ -641,6 +635,8 @@ while running:
                 draw.rect(screen,WHITE,redCardSelectRect,2)
         for p in redLeftTowerPath:
             draw.circle(screen, GREEN, p, 10)
+        wizard1.updatePos()
+        wizard1.drawSprite()
         
     elif screenNum == 4:
         screen.fill(BLACK)
