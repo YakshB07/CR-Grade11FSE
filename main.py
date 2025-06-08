@@ -20,20 +20,20 @@ redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
 
 
 class Wizard:
-    def __init__(self, health, damage, width, speed, path):
+    def __init__(self, health, damage, width, speed, path, spwnX, spwxY):
         self.health = health
         self.damage = damage
         self.speed = speed
-        self.sizeRect = Rect(0, 0, width, width)
+        self.sizeRect = Rect(35, 35, width, width)
         self.path = path
-        self.sizeRect.center = self.path[0]
+        self.sizeRect.center = (spwnX, spwxY)
         self.posIndex = 0
     
     def updatePos(self):
         if self.posIndex >= len(self.path):
             return
         targetX, targetY = self.path[self.posIndex]
-        print(targetX, targetY)
+        # print(targetX, targetY)
         dx = targetX - self.sizeRect.centerx
         dy = targetY - self.sizeRect.centery
         # print(targetY, self.sizeRect.y, dy)
@@ -52,8 +52,8 @@ class Wizard:
     def drawSprite(self):
         draw.rect(screen, RED, self.sizeRect)
         
-
-wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath)
+redTroops = []
+wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100)
 
 assassinAttack=[]
 assassinDead = []
@@ -469,6 +469,9 @@ while running:
                 redInd = 3
             if evt.key == K_u:
                 currDeckRed = [redFinalCards[i] for i in range(4)]
+                redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery))
+                # redTroops[-1].center = redPlayerSelect.x, redPlayerSelect.y
+                # print(redTroops[-1].center)
                 for a in redFinalCards:
                     if currDeckRed.count(a) == 0:
                         redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
@@ -602,14 +605,16 @@ while running:
             for j in range(6):
                 if grid1[i][j] == 1:
                     # print(i, j)
-                    draw.rect(screen, BLUE, (j*47+347, i*46.5+210, 50,50))
+                    bluePlayerSelect = Rect(j*47+347, i*46.5+210, 50,50)
+                    draw.rect(screen, BLUE, (j*47+347, i*46.5+210, 50,50), 5)
 
         #Red Player       
         for i in range(9):
             for j in range(6):
                 if grid2[i][j] == 1:
                     # print(i, j)d
-                    draw.rect(screen, RED, (j*47+755, i*46.5+210, 50, 50))
+                    redPlayerSelect = Rect(j*47+755, i*46.5+210, 50, 50)
+                    draw.rect(screen, RED, (j*47+755, i*46.5+210, 50, 50), 5)
                         
 
         #Blue cards area
@@ -635,8 +640,11 @@ while running:
                 draw.rect(screen,WHITE,redCardSelectRect,2)
         for p in redLeftTowerPath:
             draw.circle(screen, GREEN, p, 10)
-        wizard1.updatePos()
-        wizard1.drawSprite()
+        for troop in redTroops:
+            troop.updatePos()
+        for troop in redTroops:
+            troop.drawSprite()
+        # print(len(redTroops))
         
     elif screenNum == 4:
         screen.fill(BLACK)

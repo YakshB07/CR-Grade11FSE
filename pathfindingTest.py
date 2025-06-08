@@ -13,6 +13,7 @@ WHITE = (255, 255, 255)
 RED = (200, 50, 50)
 BLUE = (50, 50, 200)
 GREEN = (50, 200, 50)
+characters = []
 
 # Troop
 class Troop:
@@ -61,7 +62,7 @@ path1 = [
     (WIDTH , 20)            # Final target (enemy)
 ]
 
-troop = Troop(path)
+# troop = Troop(path)
 count = 0
 
 # Game loop
@@ -74,8 +75,14 @@ while True:
             if event.button == 1:
                 if tower.collidepoint(mx, my):
                     count += 1
+        if event.type == pygame.KEYDOWN:
+            print("click1")
+            if event.key == pygame.K_u:
+                characters.append(Troop(path))
+                print("click2")
 
-    troop.update()
+    for troop in characters:
+        troop.update()
 
     WIN.fill(WHITE)
     
@@ -93,12 +100,13 @@ while True:
     else:
         pygame.draw.rect(WIN, (0, 0, 0), tower)
     
-    troop.draw(WIN)
+    for troop in characters:
+        troop.draw(WIN)
     
     
 
     # Draw the path for visualization
-    for point in troop.path:
+    for point in path:
         pygame.draw.circle(WIN, GREEN, point, 5)
 
     pygame.display.update()
