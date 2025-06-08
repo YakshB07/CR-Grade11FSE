@@ -163,6 +163,79 @@ for i in range(1,5):
 for i in range(1,6):
     spearmenWalk.append(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"))
 
+# Assassin
+assassinRunIndex = 0
+assassinAttackIndex = 0
+assassinFrameCounter = 0
+assassinFrameSpeed = 0.1
+assassinRunningAnimation = False
+assassinAttackAnimation = False
+
+# Female Wizard
+femaleWizardRunIndex = 0
+femaleWizardAttackIndex = 0
+femaleWizardFrameCounter = 0
+femaleWizardFrameSpeed = 0.1
+femaleWizardRunningAnimation = False
+femaleWizardAttackAnimation = False
+
+# Firemen
+firemenRunIndex = 0
+firemenAttackIndex = 0
+firemenFrameCounter = 0
+firemenFrameSpeed = 0.1
+firemenRunningAnimation = False
+firemenAttackAnimation = False
+
+# Icemen
+icemenRunIndex = 0
+icemenAttackIndex = 0
+icemenFrameCounter = 0
+icemenFrameSpeed = 0.1
+icemenRunningAnimation = False
+icemenAttackAnimation = False
+
+# Golem
+golemRunIndex = 0
+golemAttackIndex = 0
+golemFrameCounter = 0
+golemFrameSpeed = 0.1
+golemRunningAnimation = False
+golemAttackAnimation = False
+
+# Jack
+jackRunIndex = 0
+jackAttackIndex = 0
+jackFrameCounter = 0
+jackFrameSpeed = 0.1
+jackRunningAnimation = False
+jackAttackAnimation = False
+
+# Knight
+knightRunIndex = 0
+knightAttackIndex = 0
+knightFrameCounter = 0
+knightFrameSpeed = 0.1
+knightRunningAnimation = False
+knightAttackAnimation = False
+
+# Male Wizard
+maleWizardRunIndex = 0
+maleWizardAttackIndex = 0
+maleWizardFrameCounter = 0
+maleWizardFrameSpeed = 0.1
+maleWizardRunningAnimation = False
+maleWizardAttackAnimation = False
+
+# Spearmen
+spearmenRunIndex = 0
+spearmenAttackIndex = 0
+spearmenFrameCounter = 0
+spearmenFrameSpeed = 0.1
+spearmenRunningAnimation = False
+spearmenAttackAnimation = False
+
+
 
 
 for i in range(9):
