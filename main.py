@@ -15,12 +15,12 @@ WHITE=(255,255,255)
 myClock=time.Clock()
 running=True
 
-
+frameCounter = 0
 redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
 
 
 class Wizard:
-    def __init__(self, health, damage, width, speed, path, spwnX, spwxY):
+    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter):
         self.health = health
         self.damage = damage
         self.speed = speed
@@ -28,6 +28,7 @@ class Wizard:
         self.path = path
         self.sizeRect.center = (spwnX, spwxY)
         self.posIndex = 0
+        self.frameCounter = frameCounter
     
     def updatePos(self):
         if self.posIndex >= len(self.path):
@@ -50,10 +51,15 @@ class Wizard:
             
         
     def drawSprite(self):
-        draw.rect(screen, RED, self.sizeRect)
+        self.frameCounter += jackFrameSpeed
+        if self.frameCounter >= len(jackRun):
+            self.frameCounter = 0
+        jackRunIndex = int(self.frameCounter)
+        screen.blit(jackRun[jackRunIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        # draw.rect(screen, RED, self.sizeRect)
         
 redTroops = []
-wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100)
+wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100, frameCounter)
 
 assassinAttack=[]
 assassinDead = []
@@ -99,7 +105,7 @@ blueRandom = []
 redRandom = []
 
 for i in range(1,9):
-    assassinAttack.append(image.load("assets/assassin-attack/assassin-attack"+ str(i) +".png"))
+    assassinAttack.append(transform.scale(image.load("assets/assassin-attack/assassin-attack"+ str(i) +".png"), (50, 50)))
 
 for i in range(1,5):
     assassinDead.append(image.load("assets/assassin-dead/assassin-dead"+ str(i) +".png"))
@@ -156,7 +162,7 @@ for i in range(1,5):
     jackDead.append(image.load("assets/jack-dead/jack-dead"+ str(i) +".png"))
 
 for i in range(1,7):
-    jackRun.append(image.load("assets/jack-run/jack-run"+ str(i) +".png"))
+    jackRun.append(transform.scale(image.load("assets/jack-run/jack-run"+ str(i) +".png"), (50, 50)))
 
 
 
@@ -202,6 +208,79 @@ for i in range(1,5):
 
 for i in range(1,6):
     spearmenWalk.append(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"))
+    
+# Assassin
+assassinRunIndex = 0
+assassinAttackIndex = 0
+assassinFrameCounter = 0
+assassinFrameSpeed = 0.1
+assassinRunningAnimation = False
+assassinAttackAnimation = False
+
+# Female Wizard
+femaleWizardRunIndex = 0
+femaleWizardAttackIndex = 0
+femaleWizardFrameCounter = 0
+femaleWizardFrameSpeed = 0.1
+femaleWizardRunningAnimation = False
+femaleWizardAttackAnimation = False
+
+# Firemen
+firemenRunIndex = 0
+firemenAttackIndex = 0
+firemenFrameCounter = 0
+firemenFrameSpeed = 0.1
+firemenRunningAnimation = False
+firemenAttackAnimation = False
+
+# Icemen
+icemenRunIndex = 0
+icemenAttackIndex = 0
+icemenFrameCounter = 0
+icemenFrameSpeed = 0.1
+icemenRunningAnimation = False
+icemenAttackAnimation = False
+
+# Golem
+golemRunIndex = 0
+golemAttackIndex = 0
+golemFrameCounter = 0
+golemFrameSpeed = 0.1
+golemRunningAnimation = False
+golemAttackAnimation = False
+
+# Jack
+jackRunIndex = 0
+jackAttackIndex = 0
+jackFrameCounter = 0
+jackFrameSpeed = 0.1
+jackRunningAnimation = False
+jackAttackAnimation = False
+
+# Knight
+knightRunIndex = 0
+knightAttackIndex = 0
+knightFrameCounter = 0
+knightFrameSpeed = 0.1
+knightRunningAnimation = False
+knightAttackAnimation = False
+
+# Male Wizard
+maleWizardRunIndex = 0
+maleWizardAttackIndex = 0
+maleWizardFrameCounter = 0
+maleWizardFrameSpeed = 0.1
+maleWizardRunningAnimation = False
+maleWizardAttackAnimation = False
+
+# Spearmen
+spearmenRunIndex = 0
+spearmenAttackIndex = 0
+spearmenFrameCounter = 0
+spearmenFrameSpeed = 0.1
+spearmenRunningAnimation = False
+spearmenAttackAnimation = False
+
 
 
 
@@ -469,7 +548,7 @@ while running:
                 redInd = 3
             if evt.key == K_u:
                 currDeckRed = [redFinalCards[i] for i in range(4)]
-                redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery))
+                redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery, frameCounter))
                 # redTroops[-1].center = redPlayerSelect.x, redPlayerSelect.y
                 # print(redTroops[-1].center)
                 for a in redFinalCards:
