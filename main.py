@@ -552,7 +552,7 @@ def renderText(surface, text, font, color, rect):
             surface.blit(word_surface, (x, y))
             x += word_width + space_width
 
-        # After each \n line, move to new line
+        # After each new line, move to new line
         x = rect.left
         y += font.get_linesize()
 
