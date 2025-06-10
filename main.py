@@ -18,9 +18,16 @@ running=True
 frameCounter = 0
 redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
 
+def findKeys(value, dict):
+    for troop, cards in dict.items():
+        for card, attributes in cards.items():
+            for attrName, attribute in attributes.items():
+                if value == attribute:
+                    return [troop, card, attrName]
+
 
 class Wizard:
-    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter):
+    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
         self.health = health
         self.damage = damage
         self.speed = speed
@@ -29,6 +36,9 @@ class Wizard:
         self.sizeRect.center = (spwnX, spwxY)
         self.posIndex = 0
         self.frameCounter = frameCounter
+        self.frameSpeed = frameSpeed
+        self.animationList = anim
+        self.animationIndex = animIndex
     
     def updatePos(self):
         if self.posIndex >= len(self.path):
@@ -51,15 +61,15 @@ class Wizard:
             
         
     def drawSprite(self):
-        self.frameCounter += jackFrameSpeed
-        if self.frameCounter >= len(jackRun):
+        self.frameCounter += self.frameSpeed
+        if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
-        jackRunIndex = int(self.frameCounter)
-        screen.blit(jackRun[jackRunIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        # draw.rect(screen, RED, self.sizeRect)
+        self.animationIndex = int(self.frameCounter)
+        screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        draw.rect(screen, RED, self.sizeRect)
         
 redTroops = []
-wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100, frameCounter)
+# wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100, frameCounter)
 
 assassinAttack=[]
 assassinDead = []
@@ -281,6 +291,12 @@ spearmenFrameSpeed = 0.1
 spearmenRunningAnimation = False
 spearmenAttackAnimation = False
 
+runIndex = 0
+attackIndex = 0
+frameCounter = 0
+frameSpeed = 0.1
+
+
 
 
 
@@ -375,6 +391,35 @@ backRect = Rect(0,600,200,100)
 redInd = 0
 screenNum = 1
 
+assasinFaceCard = image.load("assets/mainFace/mainface1.png")
+
+animationPicker = {
+    "Wizard" : {
+        "Assasin" : {
+            "runAnim" : assassinRun,
+            "runIndex" : runIndex,
+            "frameSpeed" : frameSpeed,
+            "frameCounter" : frameCounter,
+            "spriteFacecard" : faceCards[0]
+        },
+        "MaleWizard": {
+            
+        },
+        "FemaleWizard": {
+            
+        }
+    },
+    "Barbarian" : {
+        
+    },
+    "Golem" : {
+        
+    }
+}
+
+                
+
+
 grid1 = [[0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
@@ -394,6 +439,8 @@ grid2 = [[0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0]]
+
+
 
 def moveInGrid(dir, w, h, player):
     if player == 1:
@@ -513,7 +560,7 @@ for i in range(5):
     blueRandom = sample(range(1, 9), 5)  
     redRandom = sample(range(1, 9), 5) 
 
-
+parentKeys = []
 while running:
     blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
     redLeft = textfont.render(f"{3 - redReshuffleCount} left", True, WHITE)
@@ -548,9 +595,10 @@ while running:
                 redInd = 3
             if evt.key == K_u:
                 currDeckRed = [redFinalCards[i] for i in range(4)]
-                redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery, frameCounter))
-                # redTroops[-1].center = redPlayerSelect.x, redPlayerSelect.y
-                # print(redTroops[-1].center)
+                print(currDeckRed[0] == redFinalCards[0])
+                parentKeys = findKeys(currDeckRed[redInd], animationPicker)
+                print(parentKeys, currDeckRed[redInd] == faceCards[redInd])
+                # redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery, frameCounter))
                 for a in redFinalCards:
                     if currDeckRed.count(a) == 0:
                         redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
