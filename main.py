@@ -16,7 +16,8 @@ myClock=time.Clock()
 running=True
 
 frameCounter = 0
-redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 200)]
+redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 250)]
+blueTopTowerPath = [(615, 370), (690, 375), (770, 371), (1100, 250)]
 
 def findKeys(value, dict):
     for troop, cards in dict.items():
@@ -44,16 +45,51 @@ class Wizard:
         if self.posIndex >= len(self.path):
             return
         targetX, targetY = self.path[self.posIndex]
-        # print(targetX, targetY)
         dx = targetX - self.sizeRect.centerx
         dy = targetY - self.sizeRect.centery
-        # print(targetY, self.sizeRect.y, dy)
+        dist = (dx**2 + dy**2) **0.5
+        print()
+        if dist < 1:
+            self.posIndex += 1
+            # print("reached")
+        else:
+            self.sizeRect.centerx += int(self.speed * dx/dist)
+            self.sizeRect.centery += int(self.speed * dy/dist)
+            
+        
+    def drawSprite(self):
+        self.frameCounter += self.frameSpeed
+        if self.frameCounter >= len(self.animationList):
+            self.frameCounter = 0
+        self.animationIndex = int(self.frameCounter)
+        screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        
+
+class Barbarian:
+    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+        self.health = health
+        self.damage = damage
+        self.speed = speed
+        self.sizeRect = Rect(35, 35, width, width)
+        self.path = path
+        self.sizeRect.center = (spwnX, spwxY)
+        self.posIndex = 0
+        self.frameCounter = frameCounter
+        self.frameSpeed = frameSpeed
+        self.animationList = anim
+        self.animationIndex = animIndex
+    
+    def updatePos(self):
+        if self.posIndex >= len(self.path):
+            return
+        targetX, targetY = self.path[self.posIndex]
+        dx = targetX - self.sizeRect.centerx
+        dy = targetY - self.sizeRect.centery
         dist = (dx**2 + dy**2) **0.5
         
-        if dist < 10:
+        if dist < 1:
             self.posIndex += 1
-            self.sizeRect.center == self.path[-1]
-            print("reached")
+            # print("reached")
         else:
             
             self.sizeRect.centerx += int(self.speed * dx/dist)
@@ -66,9 +102,58 @@ class Wizard:
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        draw.rect(screen, RED, self.sizeRect)
+        
+        
+class Golem:
+    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+        self.health = health
+        self.damage = damage
+        self.speed = speed
+        self.sizeRect = Rect(35, 35, width, width)
+        self.path = path
+        self.sizeRect.center = (spwnX, spwxY)
+        self.posIndex = 0
+        self.frameCounter = frameCounter
+        self.frameSpeed = frameSpeed
+        self.animationList = anim
+        self.animationIndex = animIndex
+    
+    def updatePos(self):
+        if self.posIndex >= len(self.path):
+            return
+        targetX, targetY = self.path[self.posIndex]
+        dx = targetX - self.sizeRect.centerx
+        dy = targetY - self.sizeRect.centery
+        dist = (dx**2 + dy**2) **0.5
+        if dist < 1:
+            self.posIndex += 1
+            # print("reached")
+        else:
+            
+            self.sizeRect.centerx += int(self.speed * dx/dist)
+            self.sizeRect.centery += int(self.speed * dy/dist)
+            
+        
+    def drawSprite(self):
+        self.frameCounter += self.frameSpeed
+        if self.frameCounter >= len(self.animationList):
+            self.frameCounter = 0
+        self.animationIndex = int(self.frameCounter)
+        screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
 redTroops = []
+blueTroops = []
 # wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100, frameCounter)
 
 assassinAttack=[]
@@ -111,115 +196,110 @@ spearmenWalk = []
 
 
 faceCards = []
+faceCardsPath = []
 blueRandom = []
 redRandom = []
 
-for i in range(1,9):
+for i in range(1, 9):
     assassinAttack.append(transform.scale(image.load("assets/assassin-attack/assassin-attack"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,5):
-    assassinDead.append(image.load("assets/assassin-dead/assassin-dead"+ str(i) +".png"))
+for i in range(1, 5):
+    assassinDead.append(transform.scale(image.load("assets/assassin-dead/assassin-dead"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,9):
-    assassinRun.append(image.load("assets/assassin-run/assassin-run"+ str(i) +".png"))
-
-
-
-for i in range(1,8):
-    femaleWizardAttack.append(image.load("assets/femaleWizard-attack/femaleWizard-attack"+ str(i) +".png"))
-
-for i in range(1,6):
-    femaleWizardDead.append(image.load("assets/femaleWizard-dead/femaleWizard-dead"+ str(i) +".png"))
-
-for i in range(1,9):
-    femaleWizardRun.append(image.load("assets/femaleWizard-run/femaleWizard-run"+ str(i) +".png"))
+for i in range(1, 9):
+    assassinRun.append(transform.scale(image.load("assets/assassin-run/assassin-run"+ str(i) +".png"), (50, 50)))
 
 
+for i in range(1, 8):
+    femaleWizardAttack.append(transform.scale(image.load("assets/femaleWizard-attack/femaleWizard-attack"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,4):
-    firemenAttack.append(image.load("assets/firemen-attack/" + str(i) + ".png"))
-for i in range(1,6):
-    firemenDead.append(image.load("assets/firemen-dead/"+ str(i) +".png"))
+for i in range(1, 6):
+    femaleWizardDead.append(transform.scale(image.load("assets/femaleWizard-dead/femaleWizard-dead"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,8):
-    firemenRun.append(image.load("assets/firemen-run/"+ str(i) +".png"))
-
-
-for i in range(1,4):
-    icemenAttack.append(image.load("assets/iceman-attack/" + str(i) + ".png"))
-for i in range(1,7):
-    icemenDead.append(image.load("assets/iceman-dead/"+ str(i) +".png"))
-
-for i in range(1,6):
-    icemenRun.append(image.load("assets/iceman-run/"+ str(i) +".png"))
+for i in range(1, 9):
+    femaleWizardRun.append(transform.scale(image.load("assets/femaleWizard-run/femaleWizard-run"+ str(i) +".png"), (50, 50)))
 
 
+for i in range(1, 4):
+    firemenAttack.append(transform.scale(image.load("assets/firemen-attack/" + str(i) + ".png"), (50, 50)))
 
-for i in range(1,7):
-    golemAttack.append(image.load("assets/golem-attack/" + str(i) + ".png"))
-for i in range(1,6):
-    golemDead.append(image.load("assets/golem-dead/"+ str(i) +".png"))
+for i in range(1, 6):
+    firemenDead.append(transform.scale(image.load("assets/firemen-dead/"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,8):
-    golemRun.append(image.load("assets/golem-run/"+ str(i) +".png"))
+for i in range(1, 8):
+    firemenRun.append(transform.scale(image.load("assets/firemen-run/"+ str(i) +".png"), (50, 50)))
 
 
+for i in range(1, 4):
+    icemenAttack.append(transform.scale(image.load("assets/iceman-attack/" + str(i) + ".png"), (50, 50)))
 
-for i in range(1,5):
-    jackAttack.append(image.load("assets/jack-attack/jack-attack"+ str(i) +".png"))
+for i in range(1, 7):
+    icemenDead.append(transform.scale(image.load("assets/iceman-dead/"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,5):
-    jackDead.append(image.load("assets/jack-dead/jack-dead"+ str(i) +".png"))
+for i in range(1, 6):
+    icemenRun.append(transform.scale(image.load("assets/iceman-run/"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,7):
+
+for i in range(1, 7):
+    golemAttack.append(transform.scale(image.load("assets/golem-attack/" + str(i) + ".png"), (50, 50)))
+
+for i in range(1, 6):
+    golemDead.append(transform.scale(image.load("assets/golem-dead/"+ str(i) +".png"), (50, 50)))
+
+for i in range(1, 8):
+    golemRun.append(transform.scale(image.load("assets/golem-run/"+ str(i) +".png"), (50, 50)))
+
+
+for i in range(1, 5):
+    jackAttack.append(transform.scale(image.load("assets/jack-attack/jack-attack"+ str(i) +".png"), (50, 50)))
+
+for i in range(1, 5):
+    jackDead.append(transform.scale(image.load("assets/jack-dead/jack-dead"+ str(i) +".png"), (50, 50)))
+
+for i in range(1, 7):
     jackRun.append(transform.scale(image.load("assets/jack-run/jack-run"+ str(i) +".png"), (50, 50)))
 
 
+for i in range(1, 5):
+    knightAttack.append(transform.scale(image.load("assets/knight-attack/knight-attack"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,5):
-    knightAttack.append(image.load("assets/knight-attack/knight-attack"+ str(i) +".png"))
+for i in range(1, 5):
+    knightDead.append(transform.scale(image.load("assets/knight-dead/knight-dead"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,5):
-    knightDead.append(image.load("assets/knight-dead/knight-dead"+ str(i) +".png"))
-
-for i in range(1,7):
-    knightRun.append(image.load("assets/knight-run/knight-run"+ str(i) +".png"))
-
+for i in range(1, 7):
+    knightRun.append(transform.scale(image.load("assets/knight-run/knight-run"+ str(i) +".png"), (50, 50)))
 
 
-for i in range(1,8):
-    maleWizardAttack.append(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"))
+for i in range(1, 8):
+    maleWizardAttack.append(transform.scale(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,7):
-    maleWizardDead.append(image.load("assets/maleWizard-dead/maleWizard-dead"+ str(i) +".png"))
+for i in range(1, 7):
+    maleWizardDead.append(transform.scale(image.load("assets/maleWizard-dead/maleWizard-dead"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,9):
-    maleWizardRun.append(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"))
+for i in range(1, 9):
+    maleWizardRun.append(transform.scale(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"), (50, 50)))
 
+for i in range(1, 8):
+    maleWizardAttack.append(transform.scale(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"), (50, 50)))
 
+for i in range(1, 7):
+    maleWizardDead.append(transform.scale(image.load("assets/maleWizard-dead/maleWizard-dead"+ str(i) +".png"), (50, 50)))
 
-
-for i in range(1,8):
-    maleWizardAttack.append(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"))
-
-for i in range(1,7):
-    maleWizardDead.append(image.load("assets/maleWizard-dead/maleWizard-dead"+ str(i) +".png"))
-
-for i in range(1,9):
-    maleWizardRun.append(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"))
+for i in range(1, 9):
+    maleWizardRun.append(transform.scale(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"), (50, 50)))
 
 
+for i in range(1, 4):
+    spearmenAttack.append(transform.scale(image.load("assets/spearmen-attack/spearmen-attack"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,4):
-    spearmenAttack.append(image.load("assets/spearmen-attack/spearmen-attack"+ str(i) +".png"))
+for i in range(1, 5):
+    spearmenDead.append(transform.scale(image.load("assets/spearmen-dead/spearmen-dead"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,5):
-    spearmenDead.append(image.load("assets/spearmen-dead/spearmen-dead"+ str(i) +".png"))
+for i in range(1, 6):
+    spearmenWalk.append(transform.scale(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"), (50, 50)))
 
-for i in range(1,6):
-    spearmenWalk.append(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"))
     
-# Assassin
+# Assassin - Wizard
 assassinRunIndex = 0
 assassinAttackIndex = 0
 assassinFrameCounter = 0
@@ -227,7 +307,7 @@ assassinFrameSpeed = 0.1
 assassinRunningAnimation = False
 assassinAttackAnimation = False
 
-# Female Wizard
+# Female Wizard - Wizard
 femaleWizardRunIndex = 0
 femaleWizardAttackIndex = 0
 femaleWizardFrameCounter = 0
@@ -235,7 +315,7 @@ femaleWizardFrameSpeed = 0.1
 femaleWizardRunningAnimation = False
 femaleWizardAttackAnimation = False
 
-# Firemen
+# Firemen - Golem
 firemenRunIndex = 0
 firemenAttackIndex = 0
 firemenFrameCounter = 0
@@ -243,7 +323,7 @@ firemenFrameSpeed = 0.1
 firemenRunningAnimation = False
 firemenAttackAnimation = False
 
-# Icemen
+# Icemen - Golem
 icemenRunIndex = 0
 icemenAttackIndex = 0
 icemenFrameCounter = 0
@@ -251,7 +331,7 @@ icemenFrameSpeed = 0.1
 icemenRunningAnimation = False
 icemenAttackAnimation = False
 
-# Golem
+# Golem - Golem
 golemRunIndex = 0
 golemAttackIndex = 0
 golemFrameCounter = 0
@@ -259,7 +339,7 @@ golemFrameSpeed = 0.1
 golemRunningAnimation = False
 golemAttackAnimation = False
 
-# Jack
+# Jack - Barb
 jackRunIndex = 0
 jackAttackIndex = 0
 jackFrameCounter = 0
@@ -267,7 +347,7 @@ jackFrameSpeed = 0.1
 jackRunningAnimation = False
 jackAttackAnimation = False
 
-# Knight
+# Knight - Barb
 knightRunIndex = 0
 knightAttackIndex = 0
 knightFrameCounter = 0
@@ -275,7 +355,7 @@ knightFrameSpeed = 0.1
 knightRunningAnimation = False
 knightAttackAnimation = False
 
-# Male Wizard
+# Male Wizard - Wizard
 maleWizardRunIndex = 0
 maleWizardAttackIndex = 0
 maleWizardFrameCounter = 0
@@ -283,7 +363,7 @@ maleWizardFrameSpeed = 0.1
 maleWizardRunningAnimation = False
 maleWizardAttackAnimation = False
 
-# Spearmen
+# Spearmen - Barb
 spearmenRunIndex = 0
 spearmenAttackIndex = 0
 spearmenFrameCounter = 0
@@ -302,6 +382,7 @@ frameSpeed = 0.1
 
 for i in range(9):
     faceCards.append(image.load("assets/mainFace/mainface"+ str(i+1) +".png"))
+    faceCardsPath.append("assets/mainFace/mainface"+ str(i+1) +".png")
 
 
 for i in range(9):
@@ -389,33 +470,112 @@ blueFinalCards = []
 
 backRect = Rect(0,600,200,100)
 redInd = 0
+blueInd = 0
 screenNum = 1
 
 assasinFaceCard = image.load("assets/mainFace/mainface1.png")
 
 animationPicker = {
-    "Wizard" : {
-        "Assasin" : {
-            "runAnim" : assassinRun,
-            "runIndex" : runIndex,
-            "frameSpeed" : frameSpeed,
-            "frameCounter" : frameCounter,
-            "spriteFacecard" : faceCards[0]
+    "Wizard": {
+        "Assasin": {
+            "runAnim": assassinRun,
+            "runIndex": assassinRunIndex,
+            "attackIndex": assassinAttackIndex,
+            "frameCounter": assassinFrameCounter,
+            "frameSpeed": assassinFrameSpeed,
+            "runningAnimation": assassinRunningAnimation,
+            "attackAnimation": assassinAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface1.png"
         },
         "MaleWizard": {
-            
+            "runAnim": maleWizardRun,
+            "runIndex": maleWizardRunIndex,
+            "attackIndex": maleWizardAttackIndex,
+            "frameCounter": maleWizardFrameCounter,
+            "frameSpeed": maleWizardFrameSpeed,
+            "runningAnimation": maleWizardRunningAnimation,
+            "attackAnimation": maleWizardAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface8.png"
         },
         "FemaleWizard": {
-            
+            "runAnim": femaleWizardRun,
+            "runIndex": femaleWizardRunIndex,
+            "attackIndex": femaleWizardAttackIndex,
+            "frameCounter": femaleWizardFrameCounter,
+            "frameSpeed": femaleWizardFrameSpeed,
+            "runningAnimation": femaleWizardRunningAnimation,
+            "attackAnimation": femaleWizardAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface2.png"
         }
     },
-    "Barbarian" : {
-        
+    "Barbarian": {
+        "Jack": {
+            "runAnim": jackRun,
+            "runIndex": jackRunIndex,
+            "attackIndex": jackAttackIndex,
+            "frameCounter": jackFrameCounter,
+            "frameSpeed": jackFrameSpeed,
+            "runningAnimation": jackRunningAnimation,
+            "attackAnimation": jackAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface6.png"
+        },
+        "Knight": {
+            "runAnim": knightRun,
+            "runIndex": knightRunIndex,
+            "attackIndex": knightAttackIndex,
+            "frameCounter": knightFrameCounter,
+            "frameSpeed": knightFrameSpeed,
+            "runningAnimation": knightRunningAnimation,
+            "attackAnimation": knightAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface7.png"
+        },
+        "Spearmen": {
+            "runAnim": spearmenWalk,
+            "runIndex": spearmenRunIndex,
+            "attackIndex": spearmenAttackIndex,
+            "frameCounter": spearmenFrameCounter,
+            "frameSpeed": spearmenFrameSpeed,
+            "runningAnimation": spearmenRunningAnimation,
+            "attackAnimation": spearmenAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface9.png"
+        }
     },
-    "Golem" : {
-        
+    "Golem": {
+        "Firemen": {
+            "runAnim": firemenRun,
+            "runIndex": firemenRunIndex,
+            "attackIndex": firemenAttackIndex,
+            "frameCounter": firemenFrameCounter,
+            "frameSpeed": firemenFrameSpeed,
+            "runningAnimation": firemenRunningAnimation,
+            "attackAnimation": firemenAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface3.png"
+        },
+        "Icemen": {
+            "runAnim": icemenRun,
+            "runIndex": icemenRunIndex,
+            "attackIndex": icemenAttackIndex,
+            "frameCounter": icemenFrameCounter,
+            "frameSpeed": icemenFrameSpeed,
+            "runningAnimation": icemenRunningAnimation,
+            "attackAnimation": icemenAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface5.png"
+        },
+        "DefaultGolem": {
+            "runAnim": golemRun,
+            "runIndex": golemRunIndex,
+            "attackIndex": golemAttackIndex,
+            "frameCounter": golemFrameCounter,
+            "frameSpeed": golemFrameSpeed,
+            "runningAnimation": golemRunningAnimation,
+            "attackAnimation": golemAttackAnimation,
+            "spriteFacecard": "assets/mainFace/mainface4.png"
+        }
     }
 }
+
+
+
 
                 
 
@@ -586,22 +746,74 @@ while running:
             if evt.key == K_i:
                 moveInGrid("up", 6, 9, 2)
             if evt.key == K_1:
-                redInd = 0
+                blueInd = 0
             if evt.key == K_2:
-                redInd = 1
+                blueInd = 1
             if evt.key == K_3:
-                redInd = 2
+                blueInd = 2
             if evt.key == K_4:
+                blueInd = 3
+            if evt.key == K_7:
+                redInd = 0
+            if evt.key == K_8:
+                redInd = 1
+            if evt.key == K_9:
+                redInd = 2
+            if evt.key == K_0:
                 redInd = 3
+            if evt.key == K_e:
+                currDeckBlue = [blueFinalCards[i] for i in range(4)]
+                bIndex = faceCards.index(currDeckBlue[redInd])
+                print(bIndex)
+                parentKeys = findKeys(faceCardsPath[bIndex], animationPicker)
+                if parentKeys[0] == "Wizard":
+                    blueTroops.append(Wizard(100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                                            frameCounter, 
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]))
+                elif parentKeys[0] == "Barbarian":
+                    blueTroops.append(Wizard(100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                                            frameCounter, 
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]) )
+                elif parentKeys[0] == "Golem":
+                    blueTroops.append(Wizard(100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                                            frameCounter, 
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]) )
+                for a in blueFinalCards:
+                    if currDeckBlue.count(a) == 0:
+                        blueFinalCards[blueInd], blueFinalCards[4] = blueFinalCards[4], blueFinalCards[blueInd]
+                        
             if evt.key == K_u:
                 currDeckRed = [redFinalCards[i] for i in range(4)]
-                print(currDeckRed[0] == redFinalCards[0])
-                parentKeys = findKeys(currDeckRed[redInd], animationPicker)
-                print(parentKeys, currDeckRed[redInd] == faceCards[redInd])
-                # redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery, frameCounter))
+                rIndex = faceCards.index(currDeckRed[redInd])
+                parentKeys = findKeys(faceCardsPath[rIndex], animationPicker)
+                if parentKeys[0] == "Wizard":
+                    redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                            frameCounter, 
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]))
+                elif parentKeys[0] == "Barbarian":
+                    redTroops.append(Barbarian(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                            frameCounter, 
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]) )
+                elif parentKeys[0] == "Golem":
+                    redTroops.append(Golem(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                            frameCounter, 
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
+                                            animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]) )
                 for a in redFinalCards:
                     if currDeckRed.count(a) == 0:
                         redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
+                        
 
     
     mx,my=mouse.get_pos()
@@ -752,6 +964,11 @@ while running:
         for i in range(4):
             screen.blit(transform.scale(blueFinalCards[i], (100, 100)), (60,i*100+150,140,100))
             draw.rect(screen,WHITE,(40,i*100+150,140,100),2)
+            blueCardSelectRect = Rect(40,i*100+150,140,100)
+            if i == blueInd:
+                draw.rect(screen,BLUE,blueCardSelectRect,2)
+            else:
+                draw.rect(screen,WHITE,blueCardSelectRect,2)
 
         #Red cards area
         draw.rect(screen,RED,(1217,147,183,406),2)
@@ -766,10 +983,16 @@ while running:
             else:
                 draw.rect(screen,WHITE,redCardSelectRect,2)
         for p in redLeftTowerPath:
-            draw.circle(screen, GREEN, p, 10)
+            draw.circle(screen, RED, p, 10)
+        for p in blueTopTowerPath:
+            draw.circle(screen, BLUE, p, 10)
         for troop in redTroops:
             troop.updatePos()
         for troop in redTroops:
+            troop.drawSprite()
+        for troop in blueTroops:
+            troop.updatePos()
+        for troop in blueTroops:
             troop.drawSprite()
         # print(len(redTroops))
         
