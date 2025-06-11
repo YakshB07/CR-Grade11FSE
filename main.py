@@ -798,6 +798,7 @@ while running:
                 for a in blueFinalCards:
                     if currDeckBlue.count(a) == 0:
                         blueFinalCards[blueInd], blueFinalCards[4] = blueFinalCards[4], blueFinalCards[blueInd]
+                        # Huh, does this work?
                         
             if evt.key == K_u:
                 currDeckRed = [redFinalCards[i] for i in range(4)]
@@ -824,7 +825,7 @@ while running:
                 for a in redFinalCards:
                     if currDeckRed.count(a) == 0:
                         redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
-                        
+                        # Huh, does this work?
 
     
     mx,my=mouse.get_pos()
