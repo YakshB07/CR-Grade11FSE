@@ -28,7 +28,8 @@ def findKeys(value, dict):
 
 
 class Wizard:
-    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+        self.side = side
         self.health = health
         self.damage = damage
         self.speed = speed
@@ -62,11 +63,14 @@ class Wizard:
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
-        screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        
+        if self.side == "red":
+            screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        elif self.side == "blue":
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
 
 class Barbarian:
-    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+        self.side = side
         self.health = health
         self.damage = damage
         self.speed = speed
@@ -101,11 +105,15 @@ class Barbarian:
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
-        screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        if self.side == "red":
+            screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        elif self.side == "blue":
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         
         
 class Golem:
-    def __init__(self, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, anim, animIndex):
+        self.side = side
         self.health = health
         self.damage = damage
         self.speed = speed
@@ -139,7 +147,10 @@ class Golem:
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
-        screen.blit(self.animationList[self.animationIndex], (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        if self.side == "red":
+            screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        elif self.side == "blue":
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         
         
         
@@ -767,19 +778,19 @@ while running:
                 print(bIndex)
                 parentKeys = findKeys(faceCardsPath[bIndex], animationPicker)
                 if parentKeys[0] == "Wizard":
-                    blueTroops.append(Wizard(100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                    blueTroops.append(Wizard("blue", 100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                             frameCounter, 
                                             animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]))
                 elif parentKeys[0] == "Barbarian":
-                    blueTroops.append(Wizard(100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                    blueTroops.append(Wizard("blue", 100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                             frameCounter, 
                                             animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]) )
                 elif parentKeys[0] == "Golem":
-                    blueTroops.append(Wizard(100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                    blueTroops.append(Wizard("blue", 100, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                             frameCounter, 
                                             animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
@@ -793,19 +804,19 @@ while running:
                 rIndex = faceCards.index(currDeckRed[redInd])
                 parentKeys = findKeys(faceCardsPath[rIndex], animationPicker)
                 if parentKeys[0] == "Wizard":
-                    redTroops.append(Wizard(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                    redTroops.append(Wizard("red", 100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                             frameCounter, 
                                             animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]))
                 elif parentKeys[0] == "Barbarian":
-                    redTroops.append(Barbarian(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                    redTroops.append(Barbarian("red", 100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                             frameCounter, 
                                             animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runIndex"]) )
                 elif parentKeys[0] == "Golem":
-                    redTroops.append(Golem(100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                    redTroops.append(Golem("red", 100, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                             frameCounter, 
                                             animationPicker[parentKeys[0]][parentKeys[1]]["frameSpeed"],
                                             animationPicker[parentKeys[0]][parentKeys[1]]["runAnim"],
