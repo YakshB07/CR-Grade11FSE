@@ -475,6 +475,7 @@ frameCounter = 0
 jackFrameSpeed = 0.1  # adjust for animation speed
 runningAnimation = False  # flag to keep running
 attackAnimation = False
+buttondown = False
 
 while running:
     blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
@@ -484,12 +485,17 @@ while running:
         if evt.type==QUIT:
             running=False
         if evt.type == MOUSEBUTTONDOWN:
-            if runbutton.collidepoint(evt.pos):
-                runningAnimation = True
-                attackAnimation =False
-            if attackButton.collidepoint(evt.pos):
-                runningAnimation = False
-                attackAnimation =True
+            runningAnimation = False
+            buttondown = True
+        else:
+            runningAnimation = True
+            attackAnimation = False
+            # if runbutton.collidepoint(evt.pos):
+            #     runningAnimation = True
+            #     attackAnimation =False
+            # if attackButton.collidepoint(evt.pos):
+            #     runningAnimation = False
+            #     attackAnimation =True
 
         if evt.type == KEYDOWN:
             if evt.key == K_d:
@@ -551,6 +557,9 @@ while running:
             jackRunIndex = int(frameCounter)
             screen.blit(jackRun[jackRunIndex], (500, 500))
 
+        if buttondown:
+            attackAnimation =True
+            runningAnimation =False
 
         if attackAnimation:
             frameCounter += jackFrameSpeed
