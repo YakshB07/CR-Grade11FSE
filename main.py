@@ -12,6 +12,7 @@ BLUE=(0,0,255)
 GREEN=(0,255,0)
 YELLOW=(255,255,0)
 WHITE=(255,255,255)
+ELIXIR_COLOR = (176, 122, 255)
 myClock=time.Clock()
 running=True
 
@@ -422,7 +423,6 @@ frameSpeed = 0.1
 
 
 
-
 for i in range(9):
     faceCards.append(image.load("assets/mainFace/mainface"+ str(i+1) +".png"))
     faceCardsPath.append("assets/mainFace/mainface"+ str(i+1) +".png")
@@ -517,6 +517,12 @@ blueInd = 0
 screenNum = 1
 
 assasinFaceCard = image.load("assets/mainFace/mainface1.png")
+
+blueElixir = 4
+redElixir = 2
+blueElixirLastUpdate = time.get_ticks()
+redElixirLastUpdate = time.get_ticks()
+elixirMax = 10
 
 animationPicker = {
     "Wizard": {
@@ -883,19 +889,24 @@ while running:
             screenNum = 5
 
 
+
     elif screenNum == 2:
         screen.fill(BLACK)
         draw.line(screen, RED, (695, 0), (695, 695), 10)
         draw.rect(screen,BLACK,backRect)
         screen.blit(backText,(backRect[0]+40, backRect[1]+40))
         # Draw player cards
+        if not blueFinalCards:
+            for i in range(5):
+                blueFinalCards.append(faceCards[blueRandom[i]])
+        if not redFinalCards:
+            for i in range(5):
+                redFinalCards.append(faceCards[redRandom[i]])
         for i in range(5):
             draw.rect(screen, WHITE, bluePlayerCard[i], 5)
-            blueFinalCards.append(faceCards[blueRandom[i]])
             screen.blit(faceCards[blueRandom[i]], bluePlayerCard[i])
         for i in range(5):
             draw.rect(screen, WHITE, RedPlayerCard[i], 5)
-            redFinalCards.append(faceCards[redRandom[i]])
             screen.blit(faceCards[redRandom[i]], RedPlayerCard[i])
         
 
@@ -1003,8 +1014,30 @@ while running:
         #Blue cards area
         draw.rect(screen,BLUE,(0,147,183,406),2)
         draw.line(screen,WHITE,(40,150),(40,550))
+
+
+        now = time.get_ticks()
+        # Blue elixir update
+        if now - blueElixirLastUpdate >= 1000:
+            if blueElixir < elixirMax:
+                blueElixir += 1
+            blueElixirLastUpdate = now
+        # Red elixir update
+        if now - redElixirLastUpdate >= 1000:
+            if redElixir < elixirMax:
+                redElixir += 1
+            redElixirLastUpdate = now
+        #blue elixir bar
+
+
         for i in range(10):
             draw.rect(screen,WHITE,(0,150,40,i*40+40),2)
+
+        for i in range(10):
+            color = ELIXIR_COLOR if i < blueElixir else (50, 50, 50)
+            draw.rect(screen, color, (0, 150 + i*40, 40, 40))
+            draw.rect(screen, WHITE, (0, 150 + i*40, 40, 40), 2)
+
         for i in range(4):
             screen.blit(transform.scale(blueFinalCards[i], (100, 100)), (60,i*100+150,140,100))
             draw.rect(screen,WHITE,(40,i*100+150,140,100),2)
@@ -1017,8 +1050,30 @@ while running:
         #Red cards area
         draw.rect(screen,RED,(1217,147,183,406),2)
         draw.line(screen,WHITE,(1360,150),(1360,550))
+
+        
+        # Blue elixir bar (left, above blue cards area)
         for i in range(10):
-            draw.rect(screen,WHITE,(1360,150,1360,i*40+40),2)
+            if i < blueElixir:
+                color = ELIXIR_COLOR
+            else:
+                color = (50, 50, 50)
+            draw.rect(screen, color, (0, 150 + i*40, 40, 40))
+            draw.rect(screen, WHITE, (0, 150 + i*40, 40, 40), 2)
+
+        # Red elixir bar (right, above red cards area)
+        for i in range(10):
+            if i < redElixir:
+                color = ELIXIR_COLOR
+            else:
+                color = (50, 50, 50)
+            draw.rect(screen, color, (1360, 150 + i*40, 40, 40))
+            draw.rect(screen, WHITE, (1360, 150 + i*40, 40, 40), 2)
+            
+        # Draw red elixir bars
+        for i in range(10):
+            draw.rect(screen, WHITE, (1360, 150, 1360, i*40+40), 2)
+
         for i in range(4):
             screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240,i*100+150,140,100))
             redCardSelectRect = Rect(1220,i*100+150,140,100)
@@ -1065,7 +1120,7 @@ while running:
         screen.blit(backText,(backRect[0]+30, backRect[1]+40))
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
-
+    print(round(time.get_ticks()*0.001))
     prev_mb = mb
       
     myClock.tick(60)
