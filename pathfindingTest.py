@@ -16,9 +16,10 @@ GREEN = (50, 200, 50)
 characters = []
 characters1 = []
 
+
 # Troop
 class Troop:
-    def __init__(self, path, health, damage):
+    def __init__(self, path, health, damage, attckRad):
         self.size = 20
         self.rect = pygame.Rect(0, 0, self.size, self.size,)
         self.path = path
@@ -29,6 +30,8 @@ class Troop:
         self.health = health
         self.damage = damage
         self.attacking = False
+        self.attckRad = attckRad
+        self.attackBox = pygame.Rect(self.rect.x-self.attckRad/4, self.rect.y-self.attckRad/4, self.attckRad, self.attckRad)
 
     def update(self):
         if self.pos_index >= len(self.path):
@@ -47,15 +50,18 @@ class Troop:
                 self.rect.y += 0
             else:
                 self.rect.x += dx/dist * self.speed
+                self.attackBox.x += dx/dist * self.speed
                 self.rect.y += dy/dist * self.speed
+                self.attackBox.y += dy/dist * self.speed
             # print(self.rect.x)
             # print(target_x, target_y)
     
     def draw(self, surface):
         pygame.draw.rect(surface, self.col, self.rect)
+        pygame.draw.ellipse(surface, (128, 0, 128), (self.attackBox), 2)
     
     def attack(self, opponent):
-        if self.rect.colliderect(opponent.rect):
+        if self.attackBox.colliderect(opponent.rect):
             self.col = RED
             self.attacking = True 
             opponent.health -= self.damage
@@ -80,6 +86,8 @@ path1 = [
     (WIDTH , 20)            # Final target (enemy)
 ]
 
+characters.append(Troop(path, 100,  5, 40))
+characters1.append(Troop(path1, 50, 9, 40))
 # troop = Troop(path)
 count = 0
 
@@ -95,17 +103,22 @@ while True:
                     count += 1
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_u:
-                characters.append(Troop(path, 100,  5))
+                characters.append(Troop(path, 100,  5, 40))
             if event.key == pygame.K_i:
-                characters1.append(Troop(path1, 50, 9))
+                characters1.append(Troop(path1, 50, 9, 40))
             
-
     for troop in characters:
         troop.update()
+            # print("updae")
+    for troop in characters:
         if troop.health <= 0:
             characters.remove(troop)
+    print(len(characters), len(characters1))
     for troop in characters1:
         troop.update()
+    for troop in characters1:
+        if troop.health <= 0:
+            characters1.remove(troop)
 
     WIN.fill(WHITE)
     
@@ -130,7 +143,14 @@ while True:
     for red in characters:
         for blue in characters1:
             red.attack(blue)
-            blue.attack(red)
+            # print("huh")
+            # blue.attack(red)
+            # print(red.attacking, "red")
+            # print(blue.attacking,  "blue")
+            # print(red.attackBox.colliderect(blue.rect))
+            
+    # print("huh")
+            
     
 
     # Draw the path for visualization
