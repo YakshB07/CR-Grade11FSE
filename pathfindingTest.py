@@ -34,8 +34,8 @@ class Troop:
         self.attackBox = pygame.Rect(self.rect.x-self.attckRad/4, self.rect.y-self.attckRad/4, self.attckRad, self.attckRad)
 
     def update(self):
-        if self.pos_index >= len(self.path):
-            return  # done
+        if not self.path or self.pos_index >= len(self.path):
+            return  
 
         target_x, target_y = self.path[self.pos_index]
         dx = target_x - self.rect.centerx
@@ -61,7 +61,7 @@ class Troop:
         pygame.draw.ellipse(surface, (128, 0, 128), (self.attackBox), 2)
     
     def attack(self, opponent):
-        if self.attackBox.colliderect(opponent.rect):
+        if self.attackBox.colliderect(opponent.rect) and opponent.health > 0:
             self.col = RED
             self.attacking = True 
             opponent.health -= self.damage
@@ -102,10 +102,10 @@ while True:
                 if tower.collidepoint(mx, my):
                     count += 1
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_u:
-                characters.append(Troop(path, 100,  5, 40))
-            if event.key == pygame.K_i:
-                characters1.append(Troop(path1, 50, 9, 40))
+            if event.key == pygame.K_i and path:
+                characters.append(Troop(path[:], 100,  5, 40))
+            if event.key == pygame.K_u and path1:
+                characters1.append(Troop(path1[:], 50, 9, 40))
             
     for troop in characters:
         troop.update()
@@ -140,18 +140,25 @@ while True:
         troop.draw(WIN)
     for troop in characters1:
         troop.draw(WIN)
+
+
     for red in characters:
+        red.attacking = False  
+        red.col = BLUE  
         for blue in characters1:
-            red.attack(blue)
-            # print("huh")
-            # blue.attack(red)
-            # print(red.attacking, "red")
-            # print(blue.attacking,  "blue")
-            # print(red.attackBox.colliderect(blue.rect))
+            if red.attackBox.colliderect(blue.rect) and blue.health > 0:
+                red.attack(blue)
+                break  
+    for blue in characters1:
+        blue.attacking = False
+        blue.col = BLUE
+        for red in characters:
+            if blue.attackBox.colliderect(red.rect) and red.health > 0:
+                blue.attack(red)
+                break
             
     # print("huh")
-            
-    
+
 
     # Draw the path for visualization
     for point in path:
