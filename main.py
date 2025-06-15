@@ -29,11 +29,14 @@ def findKeys(value, dict):
 
 
 class Wizard:
-    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex):
+    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
         self.health = health
         self.damage = damage
         self.attacking = False
+        self.dead = False
+        self.deadAnim = deadAnim if deadAnim else []
+        self.deadFrameCounter = 0
         self.speed = speed
         self.sizeRect = Rect(35, 35, width, width)
         self.path = path
@@ -46,9 +49,12 @@ class Wizard:
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.elixir = 5  
+  
 
     
     def updatePos(self):
+        if self.dead:
+            return
         if self.posIndex >= len(self.path):
             return
         targetX, targetY = self.path[self.posIndex]
@@ -68,6 +74,15 @@ class Wizard:
             
         
     def drawSprite(self):
+        if self.dead and self.deadAnim:
+            frame = int(self.deadFrameCounter)
+            if frame < len(self.deadAnim):
+                img = self.deadAnim[frame]
+                if self.side == "red":
+                    img = transform.flip(img, True, False)
+                screen.blit(img, (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+                self.deadFrameCounter += 0.15  
+            return
         if self.attacking:
             self.animationList = self.attackAnim
         else:
@@ -90,10 +105,13 @@ class Wizard:
             self.attacking = False 
 
 class Barbarian:
-    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex):
+    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
         self.health = health
         self.damage = damage
+        self.dead = False
+        self.deadAnim = deadAnim if deadAnim else []
+        self.deadFrameCounter = 0
         self.attacking = False
         self.speed = speed
         self.sizeRect = Rect(35, 35, width, width)
@@ -109,6 +127,8 @@ class Barbarian:
         self.elixir = 5
     
     def updatePos(self):
+        if self.dead:
+            return
         if self.attacking:
             self.animationList = self.attackAnim
         else:
@@ -133,6 +153,15 @@ class Barbarian:
             
         
     def drawSprite(self):
+        if self.dead and self.deadAnim:
+            frame = int(self.deadFrameCounter)
+            if frame < len(self.deadAnim):
+                img = self.deadAnim[frame]
+                if self.side == "red":
+                    img = transform.flip(img, True, False)
+                screen.blit(img, (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+                self.deadFrameCounter += 0.15
+            return
         if self.attacking:
             self.animationList = self.attackAnim
         else:
@@ -154,10 +183,13 @@ class Barbarian:
             self.attacking = False
         
 class Golem:
-    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex):
+    def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
         self.health = health
         self.damage = damage
+        self.dead = False
+        self.deadAnim = deadAnim if deadAnim else []
+        self.deadFrameCounter = 0
         self.attacking = False
         self.speed = speed
         self.sizeRect = Rect(35, 35, width, width)
@@ -167,18 +199,26 @@ class Golem:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim
+        self.attackAnim = attackAnim  
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.elixir = 5
-
+    
     def updatePos(self):
+        if self.dead:
+            return
+        if self.attacking:
+            self.animationList = self.attackAnim
+        else:
+            self.animationList = self.runAnim
+
         if self.posIndex >= len(self.path):
             return
         targetX, targetY = self.path[self.posIndex]
         dx = targetX - self.sizeRect.centerx
         dy = targetY - self.sizeRect.centery
         dist = (dx**2 + dy**2) **0.5
+        
         if dist < 1:
             self.posIndex += 1
             # print("reached")
@@ -191,11 +231,19 @@ class Golem:
             
         
     def drawSprite(self):
+        if self.dead and self.deadAnim:
+            frame = int(self.deadFrameCounter)
+            if frame < len(self.deadAnim):
+                img = self.deadAnim[frame]
+                if self.side == "red":
+                    img = transform.flip(img, True, False)
+                screen.blit(img, (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+                self.deadFrameCounter += 0.15
+            return
         if self.attacking:
             self.animationList = self.attackAnim
         else:
             self.animationList = self.runAnim
-
         self.frameCounter += self.frameSpeed
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
@@ -203,8 +251,9 @@ class Golem:
         if self.side == "red":
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
-            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))        
+
+            
     def attack(self, opponent):
         if self.sizeRect.colliderect(opponent.sizeRect):
             self.attacking = True 
@@ -561,6 +610,7 @@ animationPicker = {
             "frameSpeed": assassinFrameSpeed,
             "runningAnimation": assassinRunningAnimation,
             "attackAnimation": assassinAttackAnimation,
+            "deadAnim": assassinDead,
             "spriteFacecard": "assets/mainFace/mainface1.png"
         },
         "MaleWizard": {
@@ -572,6 +622,7 @@ animationPicker = {
             "frameSpeed": maleWizardFrameSpeed,
             "runningAnimation": maleWizardRunningAnimation,
             "attackAnimation": maleWizardAttackAnimation,
+            "deadAnim": maleWizardDead,
             "spriteFacecard": "assets/mainFace/mainface8.png"
         },
         "FemaleWizard": {
@@ -583,6 +634,7 @@ animationPicker = {
             "frameSpeed": femaleWizardFrameSpeed,
             "runningAnimation": femaleWizardRunningAnimation,
             "attackAnimation": femaleWizardAttackAnimation,
+            "deadAnim": femaleWizardDead,
             "spriteFacecard": "assets/mainFace/mainface2.png"
         }
     },
@@ -596,6 +648,7 @@ animationPicker = {
             "frameSpeed": jackFrameSpeed,
             "runningAnimation": jackRunningAnimation,
             "attackAnimation": jackAttackAnimation,
+            "deadAnim": jackDead,
             "spriteFacecard": "assets/mainFace/mainface6.png"
         },
         "Knight": {
@@ -607,6 +660,7 @@ animationPicker = {
             "frameSpeed": knightFrameSpeed,
             "runningAnimation": knightRunningAnimation,
             "attackAnimation": knightAttackAnimation,
+            "deadAnim": knightDead,
             "spriteFacecard": "assets/mainFace/mainface7.png"
         },
         "Spearmen": {
@@ -618,6 +672,7 @@ animationPicker = {
             "frameSpeed": spearmenFrameSpeed,
             "runningAnimation": spearmenRunningAnimation,
             "attackAnimation": spearmenAttackAnimation,
+            "deadAnim": spearmenDead,
             "spriteFacecard": "assets/mainFace/mainface9.png"
         }
     },
@@ -631,6 +686,7 @@ animationPicker = {
             "frameSpeed": firemenFrameSpeed,
             "runningAnimation": firemenRunningAnimation,
             "attackAnimation": firemenAttackAnimation,
+            "deadAnim": firemenDead,
             "spriteFacecard": "assets/mainFace/mainface3.png"
         },
         "Icemen": {
@@ -642,6 +698,7 @@ animationPicker = {
             "frameSpeed": icemenFrameSpeed,
             "runningAnimation": icemenRunningAnimation,
             "attackAnimation": icemenAttackAnimation,
+            "deadAnim": icemenDead,
             "spriteFacecard": "assets/mainFace/mainface5.png"
         },
         "DefaultGolem": {
@@ -653,6 +710,7 @@ animationPicker = {
             "frameSpeed": golemFrameSpeed,
             "runningAnimation": golemRunningAnimation,
             "attackAnimation": golemAttackAnimation,
+            "deadAnim": golemDead,
             "spriteFacecard": "assets/mainFace/mainface4.png"
         }
     }
@@ -866,21 +924,25 @@ while running:
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
                                                 animationPicker[troopType][cardType]["attackAnim"],
-                                                animationPicker[troopType][cardType]["runIndex"]))
+                                                animationPicker[troopType][cardType]["runIndex"],
+                                                animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Barbarian":
                         blueTroops.append(Barbarian("blue", 100, 10, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
                                                 animationPicker[troopType][cardType]["attackAnim"],
-                                                animationPicker[troopType][cardType]["runIndex"]))
+                                                animationPicker[troopType][cardType]["runIndex"],
+                                                animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Golem":
                         blueTroops.append(Golem("blue", 200, 20, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
                                                 animationPicker[troopType][cardType]["attackAnim"],
-                                                animationPicker[troopType][cardType]["runIndex"]))
+                                                animationPicker[troopType][cardType]["runIndex"],
+                                                animationPicker[troopType][cardType]["deadAnim"]))
+# Do the same for redTroops
                     blueElixir -= elixir_cost  # Subtract elixir after placement
                     for a in blueFinalCards:
                         if currDeckBlue.count(a) == 0:
@@ -903,26 +965,30 @@ while running:
                     elixir_cost = 5
                 if redElixir >= elixir_cost:
                     if troopType == "Wizard":
-                        redTroops.append(Wizard("red", 100, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
-                                                frameCounter, 
-                                                animationPicker[troopType][cardType]["frameSpeed"],
-                                                animationPicker[troopType][cardType]["runAnim"],
-                                                animationPicker[troopType][cardType]["attackAnim"],
-                                                animationPicker[troopType][cardType]["runIndex"]))
-                    elif troopType == "Barbarian":
-                        redTroops.append(Barbarian("red", 100, 10, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
-                                                frameCounter, 
-                                                animationPicker[troopType][cardType]["frameSpeed"],
-                                                animationPicker[troopType][cardType]["runAnim"],
-                                                animationPicker[troopType][cardType]["attackAnim"],
-                                                animationPicker[troopType][cardType]["runIndex"]))
-                    elif troopType == "Golem":
-                        redTroops.append(Golem("red", 200, 20, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
-                                                frameCounter, 
-                                                animationPicker[troopType][cardType]["frameSpeed"],
-                                                animationPicker[troopType][cardType]["runAnim"],
-                                                animationPicker[troopType][cardType]["attackAnim"],
-                                                animationPicker[troopType][cardType]["runIndex"]))
+                        if troopType == "Wizard":
+                            redTroops.append(Wizard("red", 100, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                                    frameCounter, 
+                                                    animationPicker[troopType][cardType]["frameSpeed"],
+                                                    animationPicker[troopType][cardType]["runAnim"],
+                                                    animationPicker[troopType][cardType]["attackAnim"],
+                                                    animationPicker[troopType][cardType]["runIndex"],
+                                                    animationPicker[troopType][cardType]["deadAnim"]))
+                        elif troopType == "Barbarian":
+                            redTroops.append(Barbarian("red", 100, 10, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                                    frameCounter, 
+                                                    animationPicker[troopType][cardType]["frameSpeed"],
+                                                    animationPicker[troopType][cardType]["runAnim"],
+                                                    animationPicker[troopType][cardType]["attackAnim"],
+                                                    animationPicker[troopType][cardType]["runIndex"],
+                                                    animationPicker[troopType][cardType]["deadAnim"]))
+                        elif troopType == "Golem":
+                            redTroops.append(Golem("red", 200, 20, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                                    frameCounter, 
+                                                    animationPicker[troopType][cardType]["frameSpeed"],
+                                                    animationPicker[troopType][cardType]["runAnim"],
+                                                    animationPicker[troopType][cardType]["attackAnim"],
+                                                    animationPicker[troopType][cardType]["runIndex"],
+                                                    animationPicker[troopType][cardType]["deadAnim"]))
                     redElixir -= elixir_cost  # Subtract elixir after placement
                     for a in redFinalCards:
                         if currDeckRed.count(a) == 0:
@@ -1171,13 +1237,22 @@ while running:
 
 
         for troop in redTroops[:]:
-            troop.updatePos()
-            if troop.health <= 0:
+            if troop.health <= 0 and not troop.dead:
+                troop.dead = True
+                troop.deadFrameCounter = 0
+            if troop.dead and (not troop.deadAnim or troop.deadFrameCounter >= len(troop.deadAnim)):
                 redTroops.remove(troop)
+            else:
+                troop.updatePos()
+
         for troop in blueTroops[:]:
-            troop.updatePos()
-            if troop.health <= 0:
+            if troop.health <= 0 and not troop.dead:
+                troop.dead = True
+                troop.deadFrameCounter = 0
+            if troop.dead and (not troop.deadAnim or troop.deadFrameCounter >= len(troop.deadAnim)):
                 blueTroops.remove(troop)
+            else:
+                troop.updatePos()
 
         for troop in redTroops:
             troop.attacking = False
@@ -1211,7 +1286,6 @@ while running:
         screen.blit(backText,(backRect[0]+30, backRect[1]+40))
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
-    print(round(time.get_ticks()*0.001))
     prev_mb = mb
       
     myClock.tick(60)
