@@ -27,6 +27,13 @@ def findKeys(value, dict):
                 if value == attribute:
                     return [troop, card, attrName]
 
+# class Tower:
+#     def __init__(self, health, damage, ):
+#         self.health = health
+#         self.damage = damage
+        
+        
+
 
 class Wizard:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
@@ -45,7 +52,9 @@ class Wizard:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 80
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.elixir = 5  
@@ -70,7 +79,9 @@ class Wizard:
                pass
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
             
         
     def drawSprite(self):
@@ -93,12 +104,17 @@ class Wizard:
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
+            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
+            draw.rect(screen, GREEN, self.attackBox, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
+            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
+            draw.rect(screen, GREEN, self.attackBox, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
     
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect):
+        if  self.attackBox.colliderect(opponent.sizeRect) and opponent.health > 0:
+            print("ATTACK WIZARD")
             self.attacking = True 
             opponent.health -= self.damage
         else:
@@ -121,7 +137,9 @@ class Barbarian:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 40
+        self.attackBox = Rect(self.sizeRect.x-self.attackRad/4, self.sizeRect.x-self.attackRad/4, self.attackRad, self.attackRad)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.elixir = 5
@@ -171,12 +189,15 @@ class Barbarian:
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
+            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
+            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        
+            
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect):
+        if self.attackBox.colliderect(opponent.sizeRect) and opponent.health > 0:
+            print("ATTACK BARB")
             self.attacking = True 
             opponent.health -= self.damage
         else:
@@ -199,7 +220,9 @@ class Golem:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 40
+        self.attackBox = Rect(self.sizeRect.x-self.attackRad/4, self.sizeRect.x-self.attackRad/4, self.attackRad, self.attackRad)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.elixir = 5
@@ -249,13 +272,16 @@ class Golem:
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
+            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
-            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))        
-
+            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+    
             
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect):
+        if self.attackBox.colliderect(opponent.sizeRect) and opponent.health > 0:
+            print("ATTACK GOLEM")
             self.attacking = True 
             opponent.health -= self.damage
         else:
