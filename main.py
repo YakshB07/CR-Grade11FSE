@@ -27,13 +27,6 @@ def findKeys(value, dict):
                 if value == attribute:
                     return [troop, card, attrName]
 
-# class Tower:
-#     def __init__(self, health, damage, ):
-#         self.health = health
-#         self.damage = damage
-        
-        
-
 
 class Wizard:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
@@ -52,15 +45,15 @@ class Wizard:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim
-        self.attackRad = 80
-        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
+        self.attackAnim = attackAnim  
         self.animationList = self.runAnim
         self.animationIndex = animIndex
-        self.elixir = 5  
-  
+        self.attackCooldown = 0
+        self.attackCooldownMax = len(self.attackAnim)
+        self.attackRadius = 60
+        self.hasDamageDealt = False
+        self.elixir = 5
 
-    
     def updatePos(self):
         if self.dead:
             return
@@ -79,9 +72,7 @@ class Wizard:
                pass
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
-                self.attackBox.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
-                self.attackBox.centery += int(self.speed * dy/dist)
             
         
     def drawSprite(self):
@@ -102,23 +93,38 @@ class Wizard:
         self.frameCounter += self.frameSpeed
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
+            self.hasDealtDamage = False  # Reset for next attack cycle
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
-            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
-            draw.rect(screen, GREEN, self.attackBox, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
-            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
-            draw.rect(screen, GREEN, self.attackBox, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
     
-    def attack(self, opponent):
-        if  self.attackBox.colliderect(opponent.sizeRect) and opponent.health > 0:
-            print("ATTACK WIZARD")
-            self.attacking = True 
-            opponent.health -= self.damage
+    def attack(self, enemies):
+        if self.dead:
+            self.attacking = False
+            return
+
+        inRange = False
+        for enemy in enemies:
+            if not enemy.dead and self.sizeRect.colliderect(enemy.sizeRect):
+                inRange = True
+                break
+
+        if inRange:
+            self.attacking = True
+            if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                for enemy in enemies:
+                    if not enemy.dead:
+                        dx = self.sizeRect.centerx - enemy.sizeRect.centerx
+                        dy = self.sizeRect.centery - enemy.sizeRect.centery
+                        dist = (dx**2 + dy**2) ** 0.5
+                        if dist <= self.attackRadius:
+                            enemy.health -= self.damage
+                self.hasDealtDamage = True 
         else:
-            self.attacking = False 
+            self.attacking = False
+            self.hasDealtDamage = False
 
 class Barbarian:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
@@ -137,11 +143,12 @@ class Barbarian:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim
-        self.attackRad = 40
-        self.attackBox = Rect(self.sizeRect.x-self.attackRad/4, self.sizeRect.x-self.attackRad/4, self.attackRad, self.attackRad)
+        self.attackAnim = attackAnim  
         self.animationList = self.runAnim
         self.animationIndex = animIndex
+        self.attackCooldown = 0
+        self.attackCooldownMax = len(self.attackAnim)
+        self.hasDealtDamage = False
         self.elixir = 5
     
     def updatePos(self):
@@ -189,20 +196,26 @@ class Barbarian:
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
-            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
-            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-            
+        
+
     def attack(self, opponent):
-        if self.attackBox.colliderect(opponent.sizeRect) and opponent.health > 0:
-            print("ATTACK BARB")
-            self.attacking = True 
-            opponent.health -= self.damage
+        if self.sizeRect.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+            self.attacking = True
+            if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                opponent.health -= self.damage
+                self.hasDealtDamage = True
         else:
             self.attacking = False
-        
+            self.hasDealtDamage = False
+
+        self.frameCounter += self.frameSpeed
+        if self.frameCounter >= len(self.attackAnim):
+            self.frameCounter = 0
+            self.hasDealtDamage = False
+
 class Golem:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
@@ -220,11 +233,12 @@ class Golem:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim
-        self.attackRad = 40
-        self.attackBox = Rect(self.sizeRect.x-self.attackRad/4, self.sizeRect.x-self.attackRad/4, self.attackRad, self.attackRad)
+        self.attackAnim = attackAnim  
         self.animationList = self.runAnim
         self.animationIndex = animIndex
+        self.attackCooldown = 0
+        self.attackCooldownMax = len(self.attackAnim)
+        self.hasDealtDamage = False
         self.elixir = 5
     
     def updatePos(self):
@@ -244,7 +258,6 @@ class Golem:
         
         if dist < 1:
             self.posIndex += 1
-            # print("reached")
         else:
             if self.attacking:
                 pass
@@ -252,7 +265,6 @@ class Golem:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
             
-        
     def drawSprite(self):
         if self.dead and self.deadAnim:
             frame = int(self.deadFrameCounter)
@@ -272,27 +284,27 @@ class Golem:
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
-            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
-            draw.circle(screen, GREY, (self.sizeRect.centerx, self.sizeRect.centery), self.attackRad, 3)
-            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-    
-            
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))        
+
+ 
     def attack(self, opponent):
-        if self.attackBox.colliderect(opponent.sizeRect) and opponent.health > 0:
-            print("ATTACK GOLEM")
-            self.attacking = True 
-            opponent.health -= self.damage
+        if self.sizeRect.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+            self.attacking = True
+            if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                opponent.health -= self.damage
+                self.hasDealtDamage = True
         else:
             self.attacking = False
+            self.hasDealtDamage = False
+
+        self.frameCounter += self.frameSpeed
+        if self.frameCounter >= len(self.attackAnim):
+            self.frameCounter = 0
+            self.hasDealtDamage = False
         
-        
-        
-        
-        
-        
-        
+    
         
         
 # Blue Towers  
@@ -304,9 +316,9 @@ class Golem:
         screen.blit(sideTower, (1070, 190))      
         screen.blit(mainTower, (1050, 325))
         screen.blit(sideTower, (1070, 510))
-        
-mainTower = transform.scale(image.load("assets\\towers\\mainTower.png", "png"), (193/2, 254/2))
-sideTower = transform.scale(image.load("assets\\towers\\miniTower.png", "png"), (106/2, 178/2))
+
+mainTower = transform.scale(image.load("assets/towers/mainTower.png", "png"), (193/2, 254/2))
+sideTower = transform.scale(image.load("assets/towers/miniTower.png", "png"), (106/2, 178/2))
 blueTroops = []
 blueTowers = [(sideTower, (270, 190)), (mainTower, (250, 325)), (sideTower, (270, 510))]
 redTroops = []
@@ -634,8 +646,8 @@ screenNum = 1
 
 
 
-blueElixir = 4
-redElixir = 2
+blueElixir = 6
+redElixir = 6
 blueElixirLastUpdate = time.get_ticks()
 redElixirLastUpdate = time.get_ticks()
 elixirMax = 10
@@ -951,16 +963,16 @@ while running:
                 troopType = parentKeys[0]
                 cardType = parentKeys[1]
                 if troopType == "Wizard":
-                    elixir_cost = 5
+                    elixirCost = 5
                 elif troopType == "Barbarian":
-                    elixir_cost = 3
+                    elixirCost = 3
                 elif troopType == "Golem":
-                    elixir_cost = 7
+                    elixirCost = 7
                 else:
-                    elixir_cost = 5
-                if blueElixir >= elixir_cost:
+                    elixirCost = 5
+                if blueElixir >= elixirCost:
                     if troopType == "Wizard":
-                        blueTroops.append(Wizard("blue", 100, 15, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                        blueTroops.append(Wizard("blue", 150, 15, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -983,13 +995,13 @@ while running:
                                                 animationPicker[troopType][cardType]["attackAnim"],
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
-# Do the same for redTroops
-                    blueElixir -= elixir_cost  # Subtract elixir after placement
+
+                    blueElixir -= elixirCost 
                     for a in blueFinalCards:
                         if currDeckBlue.count(a) == 0:
                             blueFinalCards[blueInd], blueFinalCards[4] = blueFinalCards[4], blueFinalCards[blueInd]
 
-            # Red troop placement
+
             if evt.key == K_u:
                 currDeckRed = [redFinalCards[i] for i in range(4)]
                 rIndex = faceCards.index(currDeckRed[redInd])
@@ -997,43 +1009,43 @@ while running:
                 troopType = parentKeys[0]
                 cardType = parentKeys[1]
                 if troopType == "Wizard":
-                    elixir_cost = 5
+                    elixirCost = 5
                 elif troopType == "Barbarian":
-                    elixir_cost = 3
+                    elixirCost = 3
                 elif troopType == "Golem":
-                    elixir_cost = 7
+                    elixirCost = 7
                 # else:
                 #     elixir_cost = 5
-                if redElixir >= elixir_cost:
-                        if troopType == "Wizard":
-                            redTroops.append(Wizard("red", 100, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
-                                                    frameCounter, 
-                                                    animationPicker[troopType][cardType]["frameSpeed"],
-                                                    animationPicker[troopType][cardType]["runAnim"],
-                                                    animationPicker[troopType][cardType]["attackAnim"],
-                                                    animationPicker[troopType][cardType]["runIndex"],
-                                                    animationPicker[troopType][cardType]["deadAnim"]))
-                        elif troopType == "Barbarian":
-                            redTroops.append(Barbarian("red", 100, 10, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
-                                                    frameCounter, 
-                                                    animationPicker[troopType][cardType]["frameSpeed"],
-                                                    animationPicker[troopType][cardType]["runAnim"],
-                                                    animationPicker[troopType][cardType]["attackAnim"],
-                                                    animationPicker[troopType][cardType]["runIndex"],
-                                                    animationPicker[troopType][cardType]["deadAnim"]))
-                        elif troopType == "Golem":
-                            redTroops.append(Golem("red", 200, 20, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
-                                                    frameCounter, 
-                                                    animationPicker[troopType][cardType]["frameSpeed"],
-                                                    animationPicker[troopType][cardType]["runAnim"],
-                                                    animationPicker[troopType][cardType]["attackAnim"],
-                                                    animationPicker[troopType][cardType]["runIndex"],
-                                                    animationPicker[troopType][cardType]["deadAnim"]))
-                redElixir -= elixir_cost  # Subtract elixir after placement
+                if redElixir >= elixirCost:
+                    if troopType == "Wizard":
+                        redTroops.append(Wizard("red", 100, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                                frameCounter, 
+                                                animationPicker[troopType][cardType]["frameSpeed"],
+                                                animationPicker[troopType][cardType]["runAnim"],
+                                                animationPicker[troopType][cardType]["attackAnim"],
+                                                animationPicker[troopType][cardType]["runIndex"],
+                                                animationPicker[troopType][cardType]["deadAnim"]))
+                    elif troopType == "Barbarian":
+                        redTroops.append(Barbarian("red", 100, 10, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                                frameCounter, 
+                                                animationPicker[troopType][cardType]["frameSpeed"],
+                                                animationPicker[troopType][cardType]["runAnim"],
+                                                animationPicker[troopType][cardType]["attackAnim"],
+                                                animationPicker[troopType][cardType]["runIndex"],
+                                                animationPicker[troopType][cardType]["deadAnim"]))
+                    elif troopType == "Golem":
+                        redTroops.append(Golem("red", 200, 20, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                                                frameCounter, 
+                                                animationPicker[troopType][cardType]["frameSpeed"],
+                                                animationPicker[troopType][cardType]["runAnim"],
+                                                animationPicker[troopType][cardType]["attackAnim"],
+                                                animationPicker[troopType][cardType]["runIndex"],
+                                                animationPicker[troopType][cardType]["deadAnim"]))
+                redElixir -= elixirCost  
                 for a in redFinalCards:
                     if currDeckRed.count(a) == 0:
                         redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
-    
+
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
     pressed_keys = key.get_pressed()
@@ -1149,17 +1161,17 @@ while running:
         screen.fill(BLACK)
         screen.blit(gameBackground, (-50, 0))
         
-        # Left Grid 
-        for i in range(10):
-            draw.line(screen, GREEN, (350, i*46.5+210), (628, i*46.5+210), 2)
-        for i in range(7):
-            draw.line(screen, GREEN, (i*47+347, 210), (i*47+347, 630), 2)
+        # # Left Grid 
+        # for i in range(10):
+        #     draw.line(screen, GREEN, (350, i*46.5+210), (628, i*46.5+210), 2)
+        # for i in range(7):
+        #     draw.line(screen, GREEN, (i*47+347, 210), (i*47+347, 630), 2)
 
-        # Right Grid
-        for i in range(10):
-            draw.line(screen, GREEN, (760, i*46.5+210), (1040, i*46.5+210), 2)
-        for i in range(7):
-            draw.line(screen, GREEN, (i*46.5+760, 210), (i*46.5+760, 630), 2)
+        # # Right Grid
+        # for i in range(10):
+        #     draw.line(screen, GREEN, (760, i*46.5+210), (1040, i*46.5+210), 2)
+        # for i in range(7):
+        #     draw.line(screen, GREEN, (i*46.5+760, 210), (i*46.5+760, 630), 2)
         
         # Blue player
         for i in range(9):
@@ -1214,25 +1226,25 @@ while running:
             draw.rect(screen, WHITE, (40, i*100+150, 140, 100), 2)
             blueCardSelectRect = Rect(40, i*100+150, 140, 100)
             if i == blueInd:
-                draw.rect(screen, BLUE, blueCardSelectRect, 2)
+                draw.rect(screen, BLUE, blueCardSelectRect, 10)
             else:
                 draw.rect(screen, WHITE, blueCardSelectRect, 2)
             bIndex = faceCards.index(blueFinalCards[i])
             parentKeys = findKeys(faceCardsPath[bIndex], animationPicker)
             troopType = parentKeys[0]
             if troopType == "Wizard":
-                elixir_cost = 5
+                elixirCost = 5
             elif troopType == "Barbarian":
-                elixir_cost = 3
+                elixirCost = 3
             elif troopType == "Golem":
-                elixir_cost = 7
+                elixirCost = 7
             else:
-                elixir_cost = 5
-            if blueElixir < elixir_cost:
+                elixirCost = 5
+            if blueElixir < elixirCost:
                 overlay = Surface((140, 100), SRCALPHA)
                 overlay.fill((200, 200, 200, 180))
                 screen.blit(overlay, (40, i*100+150))
-                costText = textfont.render(str(elixir_cost), True, (100, 100, 100))
+                costText = textfont.render(str(elixirCost), True, (100, 100, 100))
                 screen.blit(costText, (40 + 70, i*100+150 + 40))  # Centered
 
 
@@ -1262,25 +1274,25 @@ while running:
             screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240, i*100+150, 140, 100))
             redCardSelectRect = Rect(1220, i*100+150, 140, 100)
             if i == redInd:
-                draw.rect(screen, RED, redCardSelectRect, 2)
+                draw.rect(screen, RED, redCardSelectRect, 10)
             else:
                 draw.rect(screen, WHITE, redCardSelectRect, 2)
             rIndex = faceCards.index(redFinalCards[i])
             parentKeys = findKeys(faceCardsPath[rIndex], animationPicker)
             troopType = parentKeys[0]
             if troopType == "Wizard":
-                elixir_cost = 5
+                elixirCost = 5
             elif troopType == "Barbarian":
-                elixir_cost = 3
+                elixirCost = 3
             elif troopType == "Golem":
-                elixir_cost = 7
+                elixirCost = 7
             else:
-                elixir_cost = 5
-            if redElixir < elixir_cost:
+                elixirCost = 5
+            if redElixir < elixirCost:
                 overlay = Surface((140, 100), SRCALPHA)
                 overlay.fill((200, 200, 200, 180))
                 screen.blit(overlay, (1220, i*100+150))
-                costText = textfont.render(str(elixir_cost), True, (100, 100, 100))
+                costText = textfont.render(str(elixirCost), True, (100, 100, 100))
                 screen.blit(costText, (1220 + 70, i*100+150 + 40))  
 
 
@@ -1308,10 +1320,6 @@ while running:
             else:
                 troop.updatePos()
 
-        for troop in redTroops:
-            troop.attacking = False
-        for troop in blueTroops:
-            troop.attacking = False
 
         for troop in redTroops:
             troop.drawSprite()
@@ -1319,9 +1327,17 @@ while running:
             troop.drawSprite()
 
         for red in redTroops:
-            for blue in blueTroops:
-                red.attack(blue)
-                blue.attack(red)
+            if isinstance(red, Wizard):
+                red.attack(blueTroops)
+            else:
+                for blue in blueTroops:
+                    red.attack(blue)
+        for blue in blueTroops:
+            if isinstance(blue, Wizard):
+                blue.attack(redTroops)
+            else:
+                for red in redTroops:
+                    blue.attack(red)
         
     elif screenNum == 4:
         screen.fill(BLACK)
