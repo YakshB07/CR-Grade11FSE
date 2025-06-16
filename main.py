@@ -46,6 +46,8 @@ class Wizard:
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
         self.attackAnim = attackAnim  
+        self.attackRad = 80
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -72,7 +74,9 @@ class Wizard:
                pass
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
             
         
     def drawSprite(self):
@@ -107,7 +111,7 @@ class Wizard:
 
         inRange = False
         for enemy in enemies:
-            if not enemy.dead and self.sizeRect.colliderect(enemy.sizeRect):
+            if not enemy.dead and self.attackBox.colliderect(enemy.sizeRect):
                 inRange = True
                 break
 
@@ -143,7 +147,9 @@ class Barbarian:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 40
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -202,7 +208,7 @@ class Barbarian:
         
 
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+        if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 opponent.health -= self.damage
@@ -233,7 +239,9 @@ class Golem:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 60
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -263,7 +271,9 @@ class Golem:
                 pass
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
             
     def drawSprite(self):
         if self.dead and self.deadAnim:
@@ -290,7 +300,7 @@ class Golem:
 
  
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+        if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 opponent.health -= self.damage
