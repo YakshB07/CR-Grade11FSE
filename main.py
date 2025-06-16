@@ -269,10 +269,22 @@ class Golem:
         
         
         
+# Blue Towers  
+        screen.blit(sideTower, (270, 190))      
+        screen.blit(mainTower, (250, 325))
+        screen.blit(sideTower, (270, 510))
         
+        # Red Towers
+        screen.blit(sideTower, (1070, 190))      
+        screen.blit(mainTower, (1050, 325))
+        screen.blit(sideTower, (1070, 510))
         
-redTroops = []
+mainTower = transform.scale(image.load("assets\\towers\\mainTower.png", "png"), (193/2, 254/2))
+sideTower = transform.scale(image.load("assets\\towers\\miniTower.png", "png"), (106/2, 178/2))
 blueTroops = []
+blueTowers = [(sideTower, (270, 190)), (mainTower, (250, 325)), (sideTower, (270, 510))]
+redTroops = []
+redTowers = [(sideTower, (1070, 190)), (mainTower, (1050, 325)), (sideTower, (1070, 510))]
 # wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100, frameCounter)
 
 assassinAttack=[]
@@ -416,6 +428,9 @@ for i in range(1, 5):
 
 for i in range(1, 6):
     spearmenWalk.append(transform.scale(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"), (50, 50)))
+
+
+
 
     
 # Assassin - Wizard
@@ -591,7 +606,7 @@ redInd = 0
 blueInd = 0
 screenNum = 1
 
-assasinFaceCard = image.load("assets/mainFace/mainface1.png")
+
 
 blueElixir = 4
 redElixir = 2
@@ -961,10 +976,9 @@ while running:
                     elixir_cost = 3
                 elif troopType == "Golem":
                     elixir_cost = 7
-                else:
-                    elixir_cost = 5
+                # else:
+                #     elixir_cost = 5
                 if redElixir >= elixir_cost:
-                    if troopType == "Wizard":
                         if troopType == "Wizard":
                             redTroops.append(Wizard("red", 100, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                     frameCounter, 
@@ -989,10 +1003,10 @@ while running:
                                                     animationPicker[troopType][cardType]["attackAnim"],
                                                     animationPicker[troopType][cardType]["runIndex"],
                                                     animationPicker[troopType][cardType]["deadAnim"]))
-                    redElixir -= elixir_cost  # Subtract elixir after placement
-                    for a in redFinalCards:
-                        if currDeckRed.count(a) == 0:
-                            redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
+                redElixir -= elixir_cost  # Subtract elixir after placement
+                for a in redFinalCards:
+                    if currDeckRed.count(a) == 0:
+                        redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
     
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
@@ -1134,6 +1148,20 @@ while running:
                 if grid2[i][j] == 1:
                     redPlayerSelect = Rect(j*47+755, i*46.5+210, 50, 50)
                     draw.rect(screen, RED, (j*47+755, i*46.5+210, 50, 50), 5)
+            
+        # # Red Towers  
+        # screen.blit(sideTower, (270, 190))      
+        # screen.blit(mainTower, (250, 325))
+        # screen.blit(sideTower, (270, 510))
+        for tower in blueTowers:
+            screen.blit(tower[0], tower[1])
+        for tower in redTowers:
+            screen.blit(tower[0], tower[1])
+        
+        # # BLue Towers
+        # screen.blit(sideTower, (1070, 190))      
+        # screen.blit(mainTower, (1050, 325))
+        # screen.blit(sideTower, (1070, 510))
                         
         draw.rect(screen,BLUE,(0,147,183,406),2)
         draw.line(screen,WHITE,(40,150),(40,550))
