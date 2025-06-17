@@ -1394,9 +1394,8 @@ while running:
             else:
                 for red in redTroops:
                     blue.attack(red)
-         # Troops attack towers with animation and proper timing
 
-        towerAttackRadius = 50  # Adjust as needed
+        towerAttackRadius = 50  
 
         # Blue troops attack red towers
         for troop in blueTroops:
@@ -1415,7 +1414,7 @@ while running:
                         troop.frameCounter += troop.frameSpeed
                         if troop.frameCounter >= len(troop.attackAnim):
                             troop.frameCounter = 0
-                            troop.hasDealtDamage = False  # Reset for next attack cycle
+                            troop.hasDealtDamage = False 
                         if int(troop.frameCounter) == len(troop.attackAnim) - 1 and not troop.hasDealtDamage:
                             tower.health -= troop.damage
                             troop.hasDealtDamage = True
@@ -1428,7 +1427,7 @@ while running:
                 if troop.frameCounter >= len(troop.runAnim):
                     troop.frameCounter = 0
 
-        # Red troops attack blue towers
+
         for troop in redTroops:
             if troop.dead:
                 continue
