@@ -100,6 +100,8 @@ class Wizard:
         self.hasDealtDamage = False
         self.elixir = 5
         self.isFollowing = False
+        self.lastAttack = 0
+        self.attackSpeed = 1 
 
     def updatePos(self):
         if self.dead:
@@ -161,7 +163,7 @@ class Wizard:
                 if self.side == "red":
                     img = transform.flip(img, True, False)
                 screen.blit(img, (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-                self.deadFrameCounter += 0.15  
+                self.deadFrameCounter += 0.15
             return
         if self.attacking:
             self.animationList = self.attackAnim
@@ -172,7 +174,7 @@ class Wizard:
         self.frameCounter += self.frameSpeed
         currFrame = int(self.frameCounter)
         if currFrame != prevFrame and currFrame == 0:
-            self.hasDealtDamage = False  
+            self.hasDealtDamage = False
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
@@ -180,6 +182,31 @@ class Wizard:
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+
+    def attackTower(self, towers):
+        inRange = False
+        for tower in towers:
+            if not self.dead and tower.health > 0:
+                dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
+                dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist <= self.attackRad:
+                    inRange = True
+                    now = time.get_ticks()
+                    if now - self.lastAttack >= 1000 / self.attackSpeed:
+                        tower.health -= self.damage
+                        self.lastAttack = now
+                    break
+
+        self.attackingTower = inRange
+        if inRange:
+            if not self.attacking:
+                self.hasDealtDamage = False
+            self.attacking = True
+            self.animationList = self.attackAnim
+            return True
+        else:
+            return False
 
     def attack(self, enemies):
             if self.dead:
@@ -207,19 +234,7 @@ class Wizard:
             else:
                 self.attacking = False
                 self.hasDealtDamage = False
-    def attackTower(self, towers):
-        for tower in towers:
-            if not self.dead and tower.health > 0:
-                dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
-                dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
-                dist = (dx**2 + dy**2) ** 0.5
-                if dist <= self.attackRad:  # Use troop's attack radius
-                    self.attacking = True
-                    if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
-                        tower.health -= self.damage
-                        self.hasDealtDamage = True
-                    return True  # Attacking a tower
-        return False
+
 
 class Barbarian:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
@@ -250,6 +265,8 @@ class Barbarian:
         self.hasDealtDamage = False
         self.elixir = 5
         self.isFollowing = False
+        self.lastAttack = 0
+        self.attackSpeed = 1 
     
     def updatePos(self):
         if self.dead:
@@ -326,7 +343,12 @@ class Barbarian:
         self.frameCounter += self.frameSpeed
         currFrame = int(self.frameCounter)
         if currFrame != prevFrame and currFrame == 0:
-            self.hasDealtDamage = False  
+            self.hasDealtDamage = False
+        prevFrame = int(self.frameCounter)
+        self.frameCounter += self.frameSpeed
+        currFrame = int(self.frameCounter)
+        if currFrame != prevFrame and currFrame == 0:
+            self.hasDealtDamage = False
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
@@ -334,35 +356,46 @@ class Barbarian:
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        
 
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+            self.attackingTroop = True
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 opponent.health -= self.damage
                 self.hasDealtDamage = True
         else:
-            self.attacking = False
-            self.hasDealtDamage = False
+            self.attackingTroop = False
+            if not self.attackingTower:
+                self.attacking = False
+                self.hasDealtDamage = False
 
-        self.frameCounter += self.frameSpeed
-        if self.frameCounter >= len(self.attackAnim):
-            self.frameCounter = 0
-            self.hasDealtDamage = False
+
     def attackTower(self, towers):
+        inRange = False
         for tower in towers:
             if not self.dead and tower.health > 0:
                 dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
                 dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
                 dist = (dx**2 + dy**2) ** 0.5
-                if dist <= self.attackRad:  # Use troop's attack radius
-                    self.attacking = True
-                    if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                if dist <= self.attackRad:
+                    inRange = True
+                    now = time.get_ticks()
+                    if now - self.lastAttack >= 1000 / self.attackSpeed:
                         tower.health -= self.damage
-                        self.hasDealtDamage = True
-                    return True  # Attacking a tower
-        return False
+                        self.lastAttack = now
+                    break
+
+        self.attackingTower = inRange
+        if inRange:
+            if not self.attacking:
+                self.hasDealtDamage = False
+            self.attacking = True
+            self.animationList = self.attackAnim
+            return True
+        else:
+            return False
+
 
 class Golem:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
@@ -393,10 +426,13 @@ class Golem:
         self.hasDealtDamage = False
         self.elixir = 5
         self.isFollowing = False
+        self.attackingTroop = False
+        self.attackingTower = False        
+        self.lastAttack = 0
+        self.attackSpeed = 1 
     
     def updatePos(self):
         global opponent
-        print(self.attacking)
         if self.dead:
             return
         if self.attacking:
@@ -450,7 +486,7 @@ class Golem:
                 self.sizeRect.centery += int(self.speed * goy/gdist)
                 self.attackBox.centery += int(self.speed * goy/gdist)
                 self.detectBox.centery += int(self.speed * goy/gdist)
-            
+                
     def drawSprite(self):
         if self.dead and self.deadAnim:
             frame = int(self.deadFrameCounter)
@@ -465,51 +501,73 @@ class Golem:
             self.animationList = self.attackAnim
         else:
             self.animationList = self.runAnim
+
+        prevFrame = int(self.frameCounter)
         self.frameCounter += self.frameSpeed
+        currFrame = int(self.frameCounter)
+        if currFrame != prevFrame and currFrame == 0:
+            self.hasDealtDamage = False
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
-            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))        
-
- 
+            screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+    
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+            self.attackingTroop = True
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 opponent.health -= self.damage
                 self.hasDealtDamage = True
         else:
-            self.attacking = False
-            self.hasDealtDamage = False
+            self.attackingTroop = False
+            if not self.attackingTower:
+                self.attacking = False
+                self.hasDealtDamage = False
 
-        self.frameCounter += self.frameSpeed
-        if self.frameCounter >= len(self.attackAnim):
-            self.frameCounter = 0
-            self.hasDealtDamage = False
-
-            
     def attackTower(self, towers):
+        inRange = False
         for tower in towers:
             if not self.dead and tower.health > 0:
                 dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
                 dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
                 dist = (dx**2 + dy**2) ** 0.5
-                if dist <= self.attackRad:  # Use troop's attack radius
-                    self.attacking = True
-                    if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                if dist <= self.attackRad:
+                    inRange = True
+                    now = time.get_ticks()
+                    if now - self.lastAttack >= 1000 / self.attackSpeed:
                         tower.health -= self.damage
-                        self.hasDealtDamage = True
-                    return True  # Attacking a tower
-        return False
-        
-    
-        
-        
-# Blue Towers  
-        screen.blit(sideTower, (270, 190))      
+                        self.lastAttack = now
+                    break
+
+        self.attackingTower = inRange
+        if inRange:
+            if not self.attacking:
+                self.hasDealtDamage = False
+            self.attacking = True
+            self.animationList = self.attackAnim
+            return True
+        else:
+            return False
+
+        self.attackingTower = inRange
+        if inRange:
+            print("attacking tower")
+            if not self.attacking:
+                self.hasDealtDamage = False
+            self.attacking = True
+            self.animationList = self.attackAnim
+            if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                tower.health -= self.damage
+                self.hasDealtDamage = True
+
+
+
+# Blue Towers
+        screen.blit(sideTower, (270, 190))
         screen.blit(mainTower, (250, 325))
         screen.blit(sideTower, (270, 510))
         
@@ -1482,7 +1540,6 @@ while running:
         for i in range(10):
             draw.rect(screen, WHITE, (1360, 150, 1360, i*40+40), 2)
 
-
         for i in range(4):
             screen.blit(transform.scale(redFinalCards[i], (100, 100)), (1240, i*100+150, 140, 100))
             redCardSelectRect = Rect(1220, i*100+150, 140, 100)
@@ -1521,9 +1578,8 @@ while running:
                 tower.draw(screen)
                 tower.attack(redTroops)
             else:
-                blueTowers.remove(tower)  # Remove destroyed tower
+                blueTowers.remove(tower)  
 
-        # Draw and update red towers
         for tower in redTowers[:]:
             if tower.health > 0:
                 tower.draw(screen)
