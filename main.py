@@ -29,7 +29,7 @@ def findKeys(value, dict):
 
 class Tower:
     def __init__(self, side, x, y, image, health=200):
-        self.side = side  # "red" or "blue"
+        self.side = side  
         self.x = x
         self.y = y
         self.image = image
@@ -131,7 +131,7 @@ class Wizard:
         self.frameCounter += self.frameSpeed
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
-            self.hasDealtDamage = False  # Reset for next attack cycle
+            self.hasDealtDamage = False  
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
@@ -143,7 +143,7 @@ class Wizard:
         if self.dead:
             self.attacking = False
             return
-        attackRange = 75  # Wizards attack from a distance!
+        attackRange = 75  
         closestEnemy = None
         minDist = attackRange + 1
         for enemy in enemies:
@@ -157,7 +157,6 @@ class Wizard:
 
         if closestEnemy and minDist <= attackRange:
             self.attacking = True
-            # Only deal damage on the last frame, and only once per attack cycle
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 closestEnemy.health -= self.damage
                 self.hasDealtDamage = True
