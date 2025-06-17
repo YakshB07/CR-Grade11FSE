@@ -18,7 +18,7 @@ running=True
 
 frameCounter = 0
 redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 250)]
-blueTopTowerPath = [(615, 370), (690, 375), (770, 371), (1100, 250)]
+blueTopTowerPath = [(615, 370), (690, 375), (770, 371), (1060, 250)]
 
 def findKeys(value, dict):
     for troop, cards in dict.items():
@@ -40,7 +40,45 @@ class Tower():
     def drawSprite(self,):
         screen.blit(self.sprite, self.spritePos)
 
+class Tower:
+    def __init__(self, side, x, y, image, health=200):
+        self.side = side  
+        self.x = x
+        self.y = y
+        self.image = image
+        self.health = health
+        self.max_health = health
+        self.damage = 20
+        self.attack_range = 100
+        self.sizeRect = Rect(x, y, image.get_width(), image.get_height())
+        self.frameCounter = 0
+        self.attackSpeed = 1  
+        self.lastAttack = 0
 
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+        bar_width = self.image.get_width()
+        bar_height = 8
+        health_ratio = max(self.health / self.max_health, 0)
+        health_bar_rect = Rect(self.x, self.y - 12, int(bar_width * health_ratio), bar_height)
+        border_rect = Rect(self.x, self.y - 12, bar_width, bar_height)
+        draw.rect(surface, (0, 255, 0), health_bar_rect)
+        draw.rect(surface, (255, 0, 0), Rect(self.x + health_bar_rect.width, self.y - 12, bar_width - health_bar_rect.width, bar_height))
+        draw.rect(surface, (255, 255, 255), border_rect, 2)
+
+    def attack(self, enemy_troops):
+        now = time.get_ticks()
+        if now - self.lastAttack < 1000 / self.attackSpeed:
+            return  
+        for troop in enemy_troops:
+            if not troop.dead:
+                dx = (troop.sizeRect.centerx - (self.x + self.image.get_width() // 2))
+                dy = (troop.sizeRect.centery - (self.y + self.image.get_height() // 2))
+                dist = (dx ** 2 + dy ** 2) ** 0.5
+                if dist <= self.attack_range:
+                    troop.health -= self.damage
+                    self.lastAttack = now
+                    break  
 class Wizard:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
@@ -66,7 +104,7 @@ class Wizard:
         self.attackCooldown = 0
         self.attackCooldownMax = len(self.attackAnim)
         self.attackRadius = 60
-        self.hasDamageDealt = False
+        self.hasDealtDamage = False
         self.elixir = 5
 
     def updatePos(self):
@@ -110,35 +148,37 @@ class Wizard:
         self.frameCounter += self.frameSpeed
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
-            self.hasDealtDamage = False  # Reset for next attack cycle
+            self.hasDealtDamage = False  
         self.animationIndex = int(self.frameCounter)
         if self.side == "red":
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-    
+
+
     def attack(self, enemies):
         if self.dead:
             self.attacking = False
             return
-
-        inRange = False
+        attackRange = 75  
+        closestEnemy = None
+        minDist = attackRange + 1
         for enemy in enemies:
-            if not enemy.dead and self.attackBox.colliderect(enemy.sizeRect):
-                inRange = True
-                break
 
-        if inRange:
+            if not enemy.dead:
+                dx = self.sizeRect.centerx - enemy.sizeRect.centerx
+                dy = self.sizeRect.centery - enemy.sizeRect.centery
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist < minDist:
+                    minDist = dist
+                    closestEnemy = enemy
+
+        if closestEnemy and minDist <= attackRange:
+
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
-                for enemy in enemies:
-                    if not enemy.dead:
-                        dx = self.sizeRect.centerx - enemy.sizeRect.centerx
-                        dy = self.sizeRect.centery - enemy.sizeRect.centery
-                        dist = (dx**2 + dy**2) ** 0.5
-                        if dist <= self.attackRadius:
-                            enemy.health -= self.damage
-                self.hasDealtDamage = True 
+                closestEnemy.health -= self.damage
+                self.hasDealtDamage = True
         else:
             self.attacking = False
             self.hasDealtDamage = False
@@ -343,13 +383,18 @@ class Golem:
 mainTower = transform.scale(image.load("assets/towers/mainTower.png", "png"), (193/2, 254/2))
 sideTower = transform.scale(image.load("assets/towers/miniTower.png", "png"), (106/2, 178/2))
 blueTroops = []
-blueTowers = [Tower("blue", 1000, 50, sideTower, (300, 190)), 
-              Tower("blue", 1000, 50, mainTower, (250, 325)), 
-              Tower("blue", 1000, 50, sideTower, (300, 510))]
+
+blueTowers = [
+    Tower("blue", 270, 190, sideTower),
+    Tower("blue", 250, 325, mainTower),
+    Tower("blue", 270, 510, sideTower)
+]
 redTroops = []
-redTowers = [Tower("blue", 1000, 50, transform.flip(sideTower, True, False), (1040, 190)), 
-              Tower("blue", 1000, 50, transform.flip(mainTower, True, False), (1050, 325)), 
-              Tower("blue", 1000, 50, transform.flip(sideTower, True, False), (1040, 510))]
+redTowers = [
+    Tower("red", 1070, 190, sideTower),
+    Tower("red", 1050, 325, mainTower),
+    Tower("red", 1070, 510, sideTower)
+]
 
 
 assassinAttack=[]
@@ -496,7 +541,7 @@ for i in range(1, 6):
 assassinRunIndex = 0
 assassinAttackIndex = 0
 assassinFrameCounter = 0
-assassinFrameSpeed = 0.1
+assassinFrameSpeed = 0.05
 assassinRunningAnimation = False
 assassinAttackAnimation = False
 
@@ -504,7 +549,7 @@ assassinAttackAnimation = False
 femaleWizardRunIndex = 0
 femaleWizardAttackIndex = 0
 femaleWizardFrameCounter = 0
-femaleWizardFrameSpeed = 0.1
+femaleWizardFrameSpeed = 0.05
 femaleWizardRunningAnimation = False
 femaleWizardAttackAnimation = False
 
@@ -512,7 +557,7 @@ femaleWizardAttackAnimation = False
 firemenRunIndex = 0
 firemenAttackIndex = 0
 firemenFrameCounter = 0
-firemenFrameSpeed = 0.1
+firemenFrameSpeed = 0.05
 firemenRunningAnimation = False
 firemenAttackAnimation = False
 
@@ -520,7 +565,7 @@ firemenAttackAnimation = False
 icemenRunIndex = 0
 icemenAttackIndex = 0
 icemenFrameCounter = 0
-icemenFrameSpeed = 0.1
+icemenFrameSpeed = 0.05
 icemenRunningAnimation = False
 icemenAttackAnimation = False
 
@@ -528,7 +573,7 @@ icemenAttackAnimation = False
 golemRunIndex = 0
 golemAttackIndex = 0
 golemFrameCounter = 0
-golemFrameSpeed = 0.1
+golemFrameSpeed = 0.05
 golemRunningAnimation = False
 golemAttackAnimation = False
 
@@ -536,7 +581,7 @@ golemAttackAnimation = False
 jackRunIndex = 0
 jackAttackIndex = 0
 jackFrameCounter = 0
-jackFrameSpeed = 0.1
+jackFrameSpeed = 0.05
 jackRunningAnimation = False
 jackAttackAnimation = False
 
@@ -544,7 +589,7 @@ jackAttackAnimation = False
 knightRunIndex = 0
 knightAttackIndex = 0
 knightFrameCounter = 0
-knightFrameSpeed = 0.1
+knightFrameSpeed = 0.05
 knightRunningAnimation = False
 knightAttackAnimation = False
 
@@ -552,7 +597,7 @@ knightAttackAnimation = False
 maleWizardRunIndex = 0
 maleWizardAttackIndex = 0
 maleWizardFrameCounter = 0
-maleWizardFrameSpeed = 0.1
+maleWizardFrameSpeed = 0.05
 maleWizardRunningAnimation = False
 maleWizardAttackAnimation = False
 
@@ -560,7 +605,7 @@ maleWizardAttackAnimation = False
 spearmenRunIndex = 0
 spearmenAttackIndex = 0
 spearmenFrameCounter = 0
-spearmenFrameSpeed = 0.1
+spearmenFrameSpeed = 0.05
 spearmenRunningAnimation = False
 spearmenAttackAnimation = False
 
@@ -991,7 +1036,7 @@ while running:
                     elixirCost = 5
                 if blueElixir >= elixirCost:
                     if troopType == "Wizard":
-                        blueTroops.append(Wizard("blue", 150, 15, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                        blueTroops.append(Wizard("blue", 20000000000, 50, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1037,7 +1082,7 @@ while running:
                 #     elixir_cost = 5
                 if redElixir >= elixirCost:
                     if troopType == "Wizard":
-                        redTroops.append(Wizard("red", 100, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Wizard("red", 150, 15, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1210,11 +1255,22 @@ while running:
         # screen.blit(sideTower, (270, 190))      
         # screen.blit(mainTower, (250, 325))
         # screen.blit(sideTower, (270, 510))
-        for tower in blueTowers:
-            tower.drawSprite()
-        for tower in redTowers:
-            tower.drawSprite()
-        
+
+# Draw and update blue towers
+        for tower in blueTowers[:]:
+            if tower.health > 0:
+                tower.draw(screen)
+                tower.attack(redTroops)
+            else:
+                blueTowers.remove(tower)  # Remove destroyed tower
+
+        # Draw and update red towers
+        for tower in redTowers[:]:
+            if tower.health > 0:
+                tower.draw(screen)
+                tower.attack(blueTroops)
+            else:
+                redTowers.remove(tower)
         # # BLue Towers
         # screen.blit(sideTower, (1070, 190))      
         # screen.blit(mainTower, (1050, 325))
@@ -1357,7 +1413,69 @@ while running:
             else:
                 for red in redTroops:
                     blue.attack(red)
-        
+
+        towerAttackRadius = 50  
+
+        # Blue troops attack red towers
+        for troop in blueTroops:
+            if troop.dead:
+                continue
+            attacked = False
+            for tower in redTowers:
+                if tower.health > 0:
+                    dx = troop.sizeRect.centerx - (tower.x + tower.image.get_width() // 2)
+                    dy = troop.sizeRect.centery - (tower.y + tower.image.get_height() // 2)
+                    dist = (dx ** 2 + dy ** 2) ** 0.5
+                    if dist <= towerAttackRadius:
+                        troop.attacking = True
+                        attacked = True
+                        troop.animationList = troop.attackAnim
+                        troop.frameCounter += troop.frameSpeed
+                        if troop.frameCounter >= len(troop.attackAnim):
+                            troop.frameCounter = 0
+                            troop.hasDealtDamage = False 
+                        if int(troop.frameCounter) == len(troop.attackAnim) - 1 and not troop.hasDealtDamage:
+                            tower.health -= troop.damage
+                            troop.hasDealtDamage = True
+                        break
+            if not attacked:
+                troop.attacking = False
+                troop.hasDealtDamage = False
+                troop.animationList = troop.runAnim
+                troop.frameCounter += troop.frameSpeed
+                if troop.frameCounter >= len(troop.runAnim):
+                    troop.frameCounter = 0
+
+
+        for troop in redTroops:
+            if troop.dead:
+                continue
+            attacked = False
+            for tower in blueTowers:
+                if tower.health > 0:
+                    dx = troop.sizeRect.centerx - (tower.x + tower.image.get_width() // 2)
+                    dy = troop.sizeRect.centery - (tower.y + tower.image.get_height() // 2)
+                    dist = (dx ** 2 + dy ** 2) ** 0.5
+                    if dist <= towerAttackRadius:
+                        troop.attacking = True
+                        attacked = True
+                        troop.animationList = troop.attackAnim
+                        troop.frameCounter += troop.frameSpeed
+                        if troop.frameCounter >= len(troop.attackAnim):
+                            troop.frameCounter = 0
+                            troop.hasDealtDamage = False
+                        if int(troop.frameCounter) == len(troop.attackAnim) - 1 and not troop.hasDealtDamage:
+                            tower.health -= troop.damage
+                            troop.hasDealtDamage = True
+                        break
+            if not attacked:
+                troop.attacking = False
+                troop.hasDealtDamage = False
+                troop.animationList = troop.runAnim
+                troop.frameCounter += troop.frameSpeed
+                if troop.frameCounter >= len(troop.runAnim):
+                    troop.frameCounter = 0
+
     elif screenNum == 4:
         screen.fill(BLACK)
         draw.rect(screen,BLACK,backRect)
