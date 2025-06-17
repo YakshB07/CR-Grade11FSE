@@ -17,8 +17,41 @@ myClock=time.Clock()
 running=True
 
 frameCounter = 0
-redLeftTowerPath = [(770, 371), (690, 375), (615, 370), (300, 250)]
-blueTopTowerPath = [(615, 370), (690, 375), (770, 371), (1060, 250)]
+redTopTowerPath = [(770, 371), (690, 370), (615, 371), (300, 250)]
+redBotTowerPath = [(770, 471), (690, 470), (615, 471), (300, 560)]
+redTopKingTowerPath = [(770, 371), (690, 375), (615, 370), (300, 250), (1100, 400)]
+
+blueTopTowerPath = [(615, 371), (690, 370), (770, 371), (1060, 250)]
+blueTopKingTowerPath =  [(615, 371), (690, 370), (770, 371), (1100, 400)]
+blueBotTowerPath = [(615, 470), (690, 470), (770, 470), (1060, 560)]
+blueBotKingTowerPath = [(615, 470), (690, 470), (770, 470), (1100, 400)]
+
+
+def determinePath(troops, topPath, botPath, topKingPath, botKingPath, towers):
+    finalPath = None
+    for troop in troops:
+        if troop.pathFound == False:
+            topDist = ((troop.sizeRect.centerx - topPath[0][0])**2 + (troop.sizeRect.centery - topPath[0][1])**2) ** 0.5
+            botDist = ((troop.sizeRect.centerx - botPath[0][0])**2 + (troop.sizeRect.centery - botPath[0][1])**2) ** 0.5
+            if topDist < botDist:
+                if towers[0].surface != sideTower:
+                    finalPath = topKingPath
+                else:
+                    finalPath = topPath
+            else:
+                if towers[-1].surface != sideTower:
+                    finalPath = topKingPath
+                else:
+                    finalPath = botPath
+            # print(topDist, botDist)
+            troop.path = finalPath
+            troop.pathFound = True
+        
+        
+    
+
+
+
 
 def findKeys(value, dict):
     for troop, cards in dict.items():
@@ -102,6 +135,7 @@ class Wizard:
         self.isFollowing = False
         self.lastAttack = 0
         self.attackSpeed = 1 
+        self.pathFound = False
 
     def updatePos(self):
         if self.dead:
@@ -120,9 +154,10 @@ class Wizard:
             dx = targetX - self.sizeRect.centerx
             dy = targetY - self.sizeRect.centery
             dist = (dx**2 + dy**2) **0.5
-            if dist < 1:
+            if dist < 5:
+                self.center = self.path[self.posIndex]
                 self.posIndex += 1
-                # print("reached")
+                
             else:
                 if self.attacking:
                     pass
@@ -185,7 +220,7 @@ class Wizard:
 
     def attackTower(self, towers):
         inRange = False
-        for tower in towers:
+        for tower in towers[:]:
             if not self.dead and tower.health > 0:
                 dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
                 dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
@@ -266,7 +301,9 @@ class Barbarian:
         self.elixir = 5
         self.isFollowing = False
         self.lastAttack = 0
-        self.attackSpeed = 1 
+        self.attackSpeed = 1
+        self.attackingTower = None
+        self.pathFound = False
     
     def updatePos(self):
         if self.dead:
@@ -373,7 +410,7 @@ class Barbarian:
 
     def attackTower(self, towers):
         inRange = False
-        for tower in towers:
+        for tower in towers[:]:
             if not self.dead and tower.health > 0:
                 dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
                 dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
@@ -430,6 +467,7 @@ class Golem:
         self.attackingTower = False        
         self.lastAttack = 0
         self.attackSpeed = 1 
+        self.pathFound = False
     
     def updatePos(self):
         global opponent
@@ -530,7 +568,7 @@ class Golem:
 
     def attackTower(self, towers):
         inRange = False
-        for tower in towers:
+        for tower in towers[:]:
             if not self.dead and tower.health > 0:
                 dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
                 dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
@@ -1278,7 +1316,7 @@ while running:
                 #     elixir_cost = 5
                 if redElixir >= elixirCost:
                     if troopType == "Wizard":
-                        redTroops.append(Wizard("red", 250, 80, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Wizard("red", 250, 80, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1286,7 +1324,7 @@ while running:
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Barbarian":
-                        redTroops.append(Barbarian("red", 120, 35, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Barbarian("red", 120, 35, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1294,7 +1332,7 @@ while running:
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Golem":
-                        redTroops.append(Golem("red", 400, 100, 20, 2, redLeftTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Golem("red", 400, 100, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1447,6 +1485,7 @@ while running:
                     redPlayerSelect = Rect(j*47+755, i*46.5+210, 50, 50)
                     draw.rect(screen, RED, (j*47+755, i*46.5+210, 50, 50), 5)
             
+        # print(mx, my)
         # # Red Towers  
         # screen.blit(sideTower, (270, 190))      
         # screen.blit(mainTower, (250, 325))
@@ -1467,6 +1506,12 @@ while running:
                 tower.attack(blueTroops)
             else:
                 redTowers.remove(tower)
+        
+        determinePath(blueTroops, blueTopTowerPath, blueBotTowerPath, blueTopKingTowerPath, blueBotTowerPath, blueTowers)
+        determinePath(redTroops, redTopTowerPath, redTopKingTowerPath, redBotTowerPath, redTopKingTowerPath)
+        
+        # for troop in blueTroops:
+        #     print(troop.pathFound)
         # # BLue Towers
         # screen.blit(sideTower, (1070, 190))      
         # screen.blit(mainTower, (1050, 325))
@@ -1566,10 +1611,14 @@ while running:
                 screen.blit(costText, (1220 + 70, i*100+150 + 40))  
 
 
-        for p in redLeftTowerPath:
+        for p in redTopTowerPath:
             draw.circle(screen, RED, p, 10)
-        for p in blueTopTowerPath:
-            draw.circle(screen, BLUE, p, 10)
+        for p in redBotTowerPath:
+            draw.circle(screen, RED, p, 10)
+        # for p in blueTopTowerPath:
+        #     draw.circle(screen, BLUE, p, 10)
+        # for p in blueBotTowerPath:
+        #     draw.circle(screen, BLUE, p, 10)
 
 
 
