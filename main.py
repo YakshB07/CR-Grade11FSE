@@ -26,6 +26,19 @@ def findKeys(value, dict):
             for attrName, attribute in attributes.items():
                 if value == attribute:
                     return [troop, card, attrName]
+                
+
+
+class Tower():
+    def __init__(self, side, health, damage, sprite, spritePos):
+        self.side = side
+        self.health = health
+        self.damage = damage
+        self.sprite = sprite
+        self.spritePos = spritePos
+        
+    def drawSprite(self,):
+        screen.blit(self.sprite, self.spritePos)
 
 class Tower:
     def __init__(self, side, x, y, image, health=200):
@@ -84,6 +97,8 @@ class Wizard:
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
         self.attackAnim = attackAnim  
+        self.attackRad = 80
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -110,7 +125,9 @@ class Wizard:
                pass
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
             
         
     def drawSprite(self):
@@ -147,6 +164,7 @@ class Wizard:
         closestEnemy = None
         minDist = attackRange + 1
         for enemy in enemies:
+
             if not enemy.dead:
                 dx = self.sizeRect.centerx - enemy.sizeRect.centerx
                 dy = self.sizeRect.centery - enemy.sizeRect.centery
@@ -156,6 +174,7 @@ class Wizard:
                     closestEnemy = enemy
 
         if closestEnemy and minDist <= attackRange:
+
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 closestEnemy.health -= self.damage
@@ -181,7 +200,9 @@ class Barbarian:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 40
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -240,7 +261,7 @@ class Barbarian:
         
 
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+        if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 opponent.health -= self.damage
@@ -271,7 +292,9 @@ class Golem:
         self.frameCounter = frameCounter
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
-        self.attackAnim = attackAnim  
+        self.attackAnim = attackAnim
+        self.attackRad = 60
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -301,7 +324,9 @@ class Golem:
                 pass
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
             
     def drawSprite(self):
         if self.dead and self.deadAnim:
@@ -328,7 +353,7 @@ class Golem:
 
  
     def attack(self, opponent):
-        if self.sizeRect.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
+        if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
             self.attacking = True
             if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                 opponent.health -= self.damage
@@ -358,6 +383,7 @@ class Golem:
 mainTower = transform.scale(image.load("assets/towers/mainTower.png", "png"), (193/2, 254/2))
 sideTower = transform.scale(image.load("assets/towers/miniTower.png", "png"), (106/2, 178/2))
 blueTroops = []
+
 blueTowers = [
     Tower("blue", 270, 190, sideTower),
     Tower("blue", 250, 325, mainTower),
@@ -369,6 +395,7 @@ redTowers = [
     Tower("red", 1050, 325, mainTower),
     Tower("red", 1070, 510, sideTower)
 ]
+
 
 assassinAttack=[]
 assassinDead = []
@@ -423,7 +450,6 @@ for i in range(1, 5):
 for i in range(1, 9):
     assassinRun.append(transform.scale(image.load("assets/assassin-run/assassin-run"+ str(i) +".png"), (50, 50)))
 
-
 for i in range(1, 8):
     femaleWizardAttack.append(transform.scale(image.load("assets/femaleWizard-attack/femaleWizard-attack"+ str(i) +".png"), (50, 50)))
 
@@ -432,7 +458,6 @@ for i in range(1, 6):
 
 for i in range(1, 9):
     femaleWizardRun.append(transform.scale(image.load("assets/femaleWizard-run/femaleWizard-run"+ str(i) +".png"), (50, 50)))
-
 
 for i in range(1, 4):
     firemenAttack.append(transform.scale(image.load("assets/firemen-attack/" + str(i) + ".png"), (50, 50)))
@@ -443,7 +468,6 @@ for i in range(1, 6):
 for i in range(1, 8):
     firemenRun.append(transform.scale(image.load("assets/firemen-run/"+ str(i) +".png"), (50, 50)))
 
-
 for i in range(1, 4):
     icemenAttack.append(transform.scale(image.load("assets/iceman-attack/" + str(i) + ".png"), (50, 50)))
 
@@ -452,7 +476,6 @@ for i in range(1, 7):
 
 for i in range(1, 6):
     icemenRun.append(transform.scale(image.load("assets/iceman-run/"+ str(i) +".png"), (50, 50)))
-
 
 for i in range(1, 7):
     golemAttack.append(transform.scale(image.load("assets/golem-attack/" + str(i) + ".png"), (50, 50)))
@@ -483,7 +506,6 @@ for i in range(1, 5):
 for i in range(1, 7):
     knightRun.append(transform.scale(image.load("assets/knight-run/knight-run"+ str(i) +".png"), (50, 50)))
 
-
 for i in range(1, 8):
     maleWizardAttack.append(transform.scale(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"), (50, 50)))
 
@@ -501,7 +523,6 @@ for i in range(1, 7):
 
 for i in range(1, 9):
     maleWizardRun.append(transform.scale(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"), (50, 50)))
-
 
 for i in range(1, 4):
     spearmenAttack.append(transform.scale(image.load("assets/spearmen-attack/spearmen-attack"+ str(i) +".png"), (50, 50)))
@@ -816,8 +837,6 @@ animationPicker = {
 
 
 
-
-                
 
 
 grid1 = [[0, 0, 0, 0, 0, 0],
@@ -1236,6 +1255,7 @@ while running:
         # screen.blit(sideTower, (270, 190))      
         # screen.blit(mainTower, (250, 325))
         # screen.blit(sideTower, (270, 510))
+
 # Draw and update blue towers
         for tower in blueTowers[:]:
             if tower.health > 0:
@@ -1251,7 +1271,6 @@ while running:
                 tower.attack(blueTroops)
             else:
                 redTowers.remove(tower)
-                
         # # BLue Towers
         # screen.blit(sideTower, (1070, 190))      
         # screen.blit(mainTower, (1050, 325))
