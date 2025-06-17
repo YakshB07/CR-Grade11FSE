@@ -110,11 +110,16 @@ class Wizard:
         self.elixir = 5
         self.isFollowing = False
 
-    def updatePos(self, opponent):
+    def updatePos(self, enemies):
         if self.dead:
             return
-        
-        
+        for enemy in enemies:
+            if self.detectBox.colliderect(enemy.sizeRect):
+                self.isFollowing == True
+                opponent = enemy
+                break
+            else:
+                self.isFollowing == True
         if self.isFollowing == False:
             if self.posIndex >= len(self.path):
                 return
@@ -131,24 +136,26 @@ class Wizard:
                 else:
                     self.sizeRect.centerx += int(self.speed * dx/dist)
                     self.attackBox.centerx += int(self.speed * dx/dist)
+                    self.detectBox.centery += int(self.speed * dy/dist)
                     self.sizeRect.centery += int(self.speed * dy/dist)
                     self.attackBox.centery += int(self.speed * dy/dist)
+                    self.detectBox.centery += int(self.speed * dy/dist)
         
         else:
-            dx = opponent.sizeRect.centerx - self.rect.centerx
-            dy = opponent.sizeRect.centery - self.rect.centery
+            wox = opponent.sizeRect.centerx - self.sizeRect.centerx
+            woy = opponent.sizeRect.centery - self.sizeRect.centery
             dist = (dx**2 + dy**2) ** 0.5
             
             if self.attacking:
-                    self.rect.x += 0
-                    self.rect.y += 0
+                    self.sizeRect.x += 0
+                    self.sizeRect.y += 0
             else:
-                self.rect.centerx += int(self.speed * dx/dist)
+                self.sizeRect.centerx += int(self.speed * dx/dist)
                 self.attackBox.centerx += int(self.speed * dx/dist)
-                self.detectBox.centerx += int(self.speed * dx/dist)
-                self.rect.centery += int(self.speed * dy/dist)
+                self.detectBox.centerx += int(self.speed * wox/dist)
+                self.sizeRect.centery += int(self.speed * dy/dist)
                 self.attackBox.centery += int(self.speed * dy/dist)
-                self.detectBox.centery += int(self.speed * dy/dist)
+                self.detectBox.centery += int(self.speed * woy/dist)
             
         
     def drawSprite(self):
@@ -225,36 +232,66 @@ class Barbarian:
         self.attackRad = 40
         self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
+        self.detectRad = 100
+        self.detectBox = Rect(self.sizeRect.centerx-self.detectRad/2, self.sizeRect.centery-self.detectRad/2, self.detectRad, self.detectRad)
         self.animationIndex = animIndex
         self.attackCooldown = 0
         self.attackCooldownMax = len(self.attackAnim)
         self.hasDealtDamage = False
         self.elixir = 5
+        self.isFollowing = False
     
-    def updatePos(self, opponent):
+    def updatePos(self, enemies):
         if self.dead:
             return
         if self.attacking:
             self.animationList = self.attackAnim
         else:
             self.animationList = self.runAnim
-
-        if self.posIndex >= len(self.path):
-            return
-        targetX, targetY = self.path[self.posIndex]
-        dx = targetX - self.sizeRect.centerx
-        dy = targetY - self.sizeRect.centery
-        dist = (dx**2 + dy**2) **0.5
-        
-        if dist < 1:
-            self.posIndex += 1
-            # print("reached")
+        for enemy in enemies:
+            if self.detectBox.colliderect(enemy.sizeRect):
+                self.isFollowing == True
+                opponent = enemy
+                break
+            else:
+                self.isFollowing == True
+        if self.isFollowing == False:
+            if self.posIndex >= len(self.path):
+                return
+            targetX, targetY = self.path[self.posIndex]
+            dx = targetX - self.sizeRect.centerx
+            dy = targetY - self.sizeRect.centery
+            dist = (dx**2 + dy**2) **0.5
+            
+            if dist < 1:
+                self.posIndex += 1
+                # print("reached")
+            else:
+                if self.attacking:
+                    pass
+                else:
+                    self.sizeRect.centerx += int(self.speed * dx/dist)
+                    self.attackBox.centerx += int(self.speed * dx/dist)
+                    self.detectBox.centerx += int(self.speed * dx/dist)
+                    self.sizeRect.centery += int(self.speed * dy/dist)
+                    self.attackBox.centery += int(self.speed * dy/dist)
+                    self.detectBox.centery += int(self.speed * dy/dist)
         else:
+            
+            box = opponent.sizeRect.centerx - self.sizeRect.centerx
+            boy = opponent.sizeRect.centery - self.sizeRect.centery
+            dist = (dx**2 + dy**2) ** 0.5
+            
             if self.attacking:
-                pass
+                    self.sizeRect.x += 0
+                    self.sizeRect.y += 0
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
+                self.detectBox.centerx += int(self.speed * box/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
+                self.detectBox.centery += int(self.speed * boy/dist)
             
         
     def drawSprite(self):
@@ -316,38 +353,65 @@ class Golem:
         self.attackAnim = attackAnim
         self.attackRad = 60
         self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad, self.attackRad*2, self.attackRad*2)
+        self.detectRad = 80
+        self.detectBox = Rect(self.sizeRect.centerx-self.detectRad/2, self.sizeRect.centery-self.detectRad/2, self.detectRad, self.detectRad)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
         self.attackCooldownMax = len(self.attackAnim)
         self.hasDealtDamage = False
         self.elixir = 5
+        self.isFollowing = False
     
-    def updatePos(self, opponent):
+    def updatePos(self, enemies):
         if self.dead:
             return
         if self.attacking:
             self.animationList = self.attackAnim
         else:
             self.animationList = self.runAnim
-
-        if self.posIndex >= len(self.path):
-            return
-        targetX, targetY = self.path[self.posIndex]
-        dx = targetX - self.sizeRect.centerx
-        dy = targetY - self.sizeRect.centery
-        dist = (dx**2 + dy**2) **0.5
-        
-        if dist < 1:
-            self.posIndex += 1
+        for enemy in enemies:
+            if self.detectBox.colliderect(enemy.sizeRect):
+                self.isFollowing == True
+                opponent = enemy
+                break
+            else:
+                self.isFollowing == True
+        if self.isFollowing == False:
+            if self.posIndex >= len(self.path):
+                return
+            targetX, targetY = self.path[self.posIndex]
+            dx = targetX - self.sizeRect.centerx
+            dy = targetY - self.sizeRect.centery
+            dist = (dx**2 + dy**2) **0.5
+            
+            if dist < 1:
+                self.posIndex += 1
+            else:
+                if self.attacking:
+                    pass
+                else:
+                    self.sizeRect.centerx += int(self.speed * dx/dist)
+                    self.attackBox.centerx += int(self.speed * dx/dist)
+                    self.detectBox.centerx += int(self.speed * dx/dist)
+                    self.sizeRect.centery += int(self.speed * dy/dist)
+                    self.attackBox.centery += int(self.speed * dy/dist)
+                    self.detectBox.centery += int(self.speed * dy/dist)
         else:
+            gox = opponent.sizeRect.centerx - self.sizeRect.centerx
+            goy = opponent.sizeRect.centery - self.sizeRect.centery
+            dist = (dx**2 + dy**2) ** 0.5
+            
             if self.attacking:
-                pass
+                    self.sizeRect.x += 0
+                    self.sizeRect.y += 0
             else:
                 self.sizeRect.centerx += int(self.speed * dx/dist)
                 self.attackBox.centerx += int(self.speed * dx/dist)
+                self.detectBox.centerx += int(self.speed * gox/dist)
                 self.sizeRect.centery += int(self.speed * dy/dist)
                 self.attackBox.centery += int(self.speed * dy/dist)
+                self.detectBox.centery += int(self.speed * goy/dist)
             
     def drawSprite(self):
         if self.dead and self.deadAnim:
@@ -1405,8 +1469,8 @@ while running:
             if troop.dead and (not troop.deadAnim or troop.deadFrameCounter >= len(troop.deadAnim)):
                 redTroops.remove(troop)
             else:
-                for troopBlue in blueTroops[:]:
-                    troop.updatePos(troopBlue)
+                troop.updatePos(blueTroops)
+                
 
         for troop in blueTroops[:]:
             if troop.health <= 0 and not troop.dead:
@@ -1415,10 +1479,9 @@ while running:
             if troop.dead and (not troop.deadAnim or troop.deadFrameCounter >= len(troop.deadAnim)):
                 blueTroops.remove(troop)
             else:
-                for troopRed in blueTroops[:]:
-                    troop.updatePos(troopRed)
+                troop.updatePos(redTroops)
 
-
+        
 
         for troop in redTroops:
             troop.drawSprite()
