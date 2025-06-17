@@ -19,7 +19,7 @@ characters1 = []
 
 # Troop
 class Troop:
-    def __init__(self, path, health, damage, attckRad):
+    def __init__(self, path, health, damage, attckRad, detectRad):
         self.size = 20
         self.rect = pygame.Rect(0, 0, self.size, self.size,)
         self.path = path
@@ -32,6 +32,7 @@ class Troop:
         self.attacking = False
         self.attckRad = attckRad
         self.attackBox = pygame.Rect(self.rect.x-self.attckRad/4, self.rect.y-self.attckRad/4, self.attckRad, self.attckRad)
+        self.detectRad = detectRad
 
     def update(self):
         if not self.path or self.pos_index >= len(self.path):
@@ -59,6 +60,7 @@ class Troop:
     def draw(self, surface):
         pygame.draw.rect(surface, self.col, self.rect)
         pygame.draw.ellipse(surface, (128, 0, 128), (self.attackBox), 2)
+        pygame.draw.rect(surface, GREEN, (self.rect-self.rad))
     
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.rect) and opponent.health > 0:
@@ -79,15 +81,15 @@ path = [
     (WIDTH // 4, HEIGHT // 2),   # Move left into top lane
     (WIDTH // 4, 100)            # Final target (enemy)
 ]
-path1 = [
-    (WIDTH // 3, HEIGHT - 25),   # Start middle bottom
-    (WIDTH // 3, HEIGHT // 2),   # Move vertically to center
-    (WIDTH // 5, HEIGHT // 2),   # Move left into top lane
-    (WIDTH , 20)            # Final target (enemy)
-]
+# path1 = [
+#     (WIDTH // 3, HEIGHT - 25),   # Start middle bottom
+#     (WIDTH // 3, HEIGHT // 2),   # Move vertically to center
+#     (WIDTH // 5, HEIGHT // 2),   # Move left into top lane
+#     (WIDTH , 20)            # Final target (enemy)
+# ]
 
-characters.append(Troop(path, 100,  5, 40))
-characters1.append(Troop(path1, 50, 9, 40))
+characters.append(Troop(path, 100,  5, 40, 80))
+# characters1.append(Troop(path1, 50, 9, 40))
 # troop = Troop(path)
 count = 0
 
@@ -97,15 +99,11 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if tower.collidepoint(mx, my):
-                    count += 1
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_i and path:
                 characters.append(Troop(path[:], 100,  5, 40))
-            if event.key == pygame.K_u and path1:
-                characters1.append(Troop(path1[:], 50, 9, 40))
+            # if event.key == pygame.K_u and path1:
+            #     characters1.append(Troop(path1[:], 50, 9, 40))
             
     for troop in characters:
         troop.update()
@@ -113,12 +111,11 @@ while True:
     for troop in characters:
         if troop.health <= 0:
             characters.remove(troop)
-    print(len(characters), len(characters1))
-    for troop in characters1:
-        troop.update()
-    for troop in characters1:
-        if troop.health <= 0:
-            characters1.remove(troop)
+    # for troop in characters1:
+    #     troop.update()
+    # for troop in characters1:
+    #     if troop.health <= 0:
+    #         characters1.remove(troop)
 
     WIN.fill(WHITE)
     
@@ -149,13 +146,13 @@ while True:
             if red.attackBox.colliderect(blue.rect) and blue.health > 0:
                 red.attack(blue)
                 break  
-    for blue in characters1:
-        blue.attacking = False
-        blue.col = BLUE
-        for red in characters:
-            if blue.attackBox.colliderect(red.rect) and red.health > 0:
-                blue.attack(red)
-                break
+    # for blue in characters1:
+    #     blue.attacking = False
+    #     blue.col = BLUE
+    #     for red in characters:
+    #         if blue.attackBox.colliderect(red.rect) and red.health > 0:
+    #             blue.attack(red)
+    #             break
             
     # print("huh")
 
@@ -163,8 +160,8 @@ while True:
     # Draw the path for visualization
     for point in path:
         pygame.draw.circle(WIN, GREEN, point, 5)
-    for point in path1:
-        pygame.draw.circle(WIN, GREEN, point, 5)
+    # for point in path1:
+    #     pygame.draw.circle(WIN, GREEN, point, 5)
 
     pygame.display.update()
     CLOCK.tick(FPS)

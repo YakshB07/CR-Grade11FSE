@@ -26,6 +26,19 @@ def findKeys(value, dict):
             for attrName, attribute in attributes.items():
                 if value == attribute:
                     return [troop, card, attrName]
+                
+
+
+class Tower():
+    def __init__(self, side, health, damage, sprite, spritePos):
+        self.side = side
+        self.health = health
+        self.damage = damage
+        self.sprite = sprite
+        self.spritePos = spritePos
+        
+    def drawSprite(self,):
+        screen.blit(self.sprite, self.spritePos)
 
 
 class Wizard:
@@ -330,10 +343,14 @@ class Golem:
 mainTower = transform.scale(image.load("assets/towers/mainTower.png", "png"), (193/2, 254/2))
 sideTower = transform.scale(image.load("assets/towers/miniTower.png", "png"), (106/2, 178/2))
 blueTroops = []
-blueTowers = [(sideTower, (270, 190)), (mainTower, (250, 325)), (sideTower, (270, 510))]
+blueTowers = [Tower("blue", 1000, 50, sideTower, (300, 190)), 
+              Tower("blue", 1000, 50, mainTower, (250, 325)), 
+              Tower("blue", 1000, 50, sideTower, (300, 510))]
 redTroops = []
-redTowers = [(sideTower, (1070, 190)), (mainTower, (1050, 325)), (sideTower, (1070, 510))]
-# wizard1 = Wizard(100, 100, 100, 2, redLeftTowerPath, 100, 100, frameCounter)
+redTowers = [Tower("blue", 1000, 50, transform.flip(sideTower, True, False), (1040, 190)), 
+              Tower("blue", 1000, 50, transform.flip(mainTower, True, False), (1050, 325)), 
+              Tower("blue", 1000, 50, transform.flip(sideTower, True, False), (1040, 510))]
+
 
 assassinAttack=[]
 assassinDead = []
@@ -388,7 +405,6 @@ for i in range(1, 5):
 for i in range(1, 9):
     assassinRun.append(transform.scale(image.load("assets/assassin-run/assassin-run"+ str(i) +".png"), (50, 50)))
 
-
 for i in range(1, 8):
     femaleWizardAttack.append(transform.scale(image.load("assets/femaleWizard-attack/femaleWizard-attack"+ str(i) +".png"), (50, 50)))
 
@@ -397,7 +413,6 @@ for i in range(1, 6):
 
 for i in range(1, 9):
     femaleWizardRun.append(transform.scale(image.load("assets/femaleWizard-run/femaleWizard-run"+ str(i) +".png"), (50, 50)))
-
 
 for i in range(1, 4):
     firemenAttack.append(transform.scale(image.load("assets/firemen-attack/" + str(i) + ".png"), (50, 50)))
@@ -408,7 +423,6 @@ for i in range(1, 6):
 for i in range(1, 8):
     firemenRun.append(transform.scale(image.load("assets/firemen-run/"+ str(i) +".png"), (50, 50)))
 
-
 for i in range(1, 4):
     icemenAttack.append(transform.scale(image.load("assets/iceman-attack/" + str(i) + ".png"), (50, 50)))
 
@@ -417,7 +431,6 @@ for i in range(1, 7):
 
 for i in range(1, 6):
     icemenRun.append(transform.scale(image.load("assets/iceman-run/"+ str(i) +".png"), (50, 50)))
-
 
 for i in range(1, 7):
     golemAttack.append(transform.scale(image.load("assets/golem-attack/" + str(i) + ".png"), (50, 50)))
@@ -448,7 +461,6 @@ for i in range(1, 5):
 for i in range(1, 7):
     knightRun.append(transform.scale(image.load("assets/knight-run/knight-run"+ str(i) +".png"), (50, 50)))
 
-
 for i in range(1, 8):
     maleWizardAttack.append(transform.scale(image.load("assets/maleWizard-attack/maleWizard-attack"+ str(i) +".png"), (50, 50)))
 
@@ -466,7 +478,6 @@ for i in range(1, 7):
 
 for i in range(1, 9):
     maleWizardRun.append(transform.scale(image.load("assets/maleWizard-run/maleWizard-run"+ str(i) +".png"), (50, 50)))
-
 
 for i in range(1, 4):
     spearmenAttack.append(transform.scale(image.load("assets/spearmen-attack/spearmen-attack"+ str(i) +".png"), (50, 50)))
@@ -781,8 +792,6 @@ animationPicker = {
 
 
 
-
-                
 
 
 grid1 = [[0, 0, 0, 0, 0, 0],
@@ -1202,9 +1211,9 @@ while running:
         # screen.blit(mainTower, (250, 325))
         # screen.blit(sideTower, (270, 510))
         for tower in blueTowers:
-            screen.blit(tower[0], tower[1])
+            tower.drawSprite()
         for tower in redTowers:
-            screen.blit(tower[0], tower[1])
+            tower.drawSprite()
         
         # # BLue Towers
         # screen.blit(sideTower, (1070, 190))      
