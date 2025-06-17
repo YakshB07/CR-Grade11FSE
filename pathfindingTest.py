@@ -33,34 +33,59 @@ class Troop:
         self.attckRad = attckRad
         self.attackBox = pygame.Rect(self.rect.x-self.attckRad/4, self.rect.y-self.attckRad/4, self.attckRad, self.attckRad)
         self.detectRad = detectRad
+        self.detectBox = pygame.Rect(self.rect.centerx-self.detectRad/2, self.rect.centery-self.detectRad/2, self.detectRad, self.detectRad)
+        self.isFollowing = False
 
-    def update(self):
-        if not self.path or self.pos_index >= len(self.path):
-            return  
-
-        target_x, target_y = self.path[self.pos_index]
-        dx = target_x - self.rect.centerx
-        dy = target_y - self.rect.centery
-        dist = (dx**2 + dy**2) ** 0.5
-        if dist < 2:
-            self.rect.center = self.path[self.pos_index]
-            self.pos_index += 1
+    def update(self, ox, oy):
+        if self.detectBox.collidepoint(ox, oy):
+            self.isFollowing = True
+            # print(self.isFollowing)
         else:
-            if self.attacking:
-                self.rect.x += 0
-                self.rect.y += 0
+            self.isFollowing = False
+        if self.isFollowing == False:
+            if not self.path or self.pos_index >= len(self.path):
+                return  
+
+            target_x, target_y = self.path[self.pos_index]
+            dx = target_x - self.rect.centerx
+            dy = target_y - self.rect.centery
+            dist = (dx**2 + dy**2) ** 0.5
+            if dist < 2:
+                self.rect.center = self.path[self.pos_index]
+                self.pos_index += 1
             else:
-                self.rect.x += dx/dist * self.speed
-                self.attackBox.x += dx/dist * self.speed
-                self.rect.y += dy/dist * self.speed
-                self.attackBox.y += dy/dist * self.speed
-            # print(self.rect.x)
-            # print(target_x, target_y)
+                if self.attacking:
+                    self.rect.x += 0
+                    self.rect.y += 0
+                else:
+                    self.rect.centerx += int(self.speed * dx/dist)
+                    self.attackBox.centerx += int(self.speed * dx/dist)
+                    self.detectBox.centerx += int(self.speed * dx/dist)
+                    self.rect.centery += int(self.speed * dy/dist)
+                    self.attackBox.centery += int(self.speed * dy/dist)
+                    self.detectBox.centery += int(self.speed * dy/dist)
+        
+        else:
+            dx = ox - self.rect.centerx
+            dy = oy - self.rect.centery
+            dist = (dx**2 + dy**2) ** 0.5
+            
+            if self.attacking:
+                    self.rect.x += 0
+                    self.rect.y += 0
+            else:
+                self.rect.centerx += int(self.speed * dx/dist)
+                self.attackBox.centerx += int(self.speed * dx/dist)
+                self.detectBox.centerx += int(self.speed * dx/dist)
+                self.rect.centery += int(self.speed * dy/dist)
+                self.attackBox.centery += int(self.speed * dy/dist)
+                self.detectBox.centery += int(self.speed * dy/dist)
+            
     
     def draw(self, surface):
         pygame.draw.rect(surface, self.col, self.rect)
         pygame.draw.ellipse(surface, (128, 0, 128), (self.attackBox), 2)
-        pygame.draw.rect(surface, GREEN, (self.rect-self.rad))
+        pygame.draw.rect(surface, GREEN, self.detectBox, 3)
     
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.rect) and opponent.health > 0:
@@ -88,7 +113,7 @@ path = [
 #     (WIDTH , 20)            # Final target (enemy)
 # ]
 
-characters.append(Troop(path, 100,  5, 40, 80))
+characters.append(Troop(path, 100,  5, 40, 160))
 # characters1.append(Troop(path1, 50, 9, 40))
 # troop = Troop(path)
 count = 0
@@ -104,9 +129,11 @@ while True:
                 characters.append(Troop(path[:], 100,  5, 40))
             # if event.key == pygame.K_u and path1:
             #     characters1.append(Troop(path1[:], 50, 9, 40))
-            
+    
+    
+    mx, my = pygame.mouse.get_pos()        
     for troop in characters:
-        troop.update()
+        troop.update(mx, my)
             # print("updae")
     for troop in characters:
         if troop.health <= 0:
@@ -120,7 +147,7 @@ while True:
     WIN.fill(WHITE)
     
     mb = pygame.mouse.get_pressed()
-    mx, my = pygame.mouse.get_pos()
+    
     if mb[1]:
         path.append((mx, my))
     if mb[2]:
