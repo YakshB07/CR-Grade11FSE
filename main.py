@@ -346,7 +346,7 @@ class Barbarian:
             dy = targetY - self.sizeRect.centery
             dist = (dx**2 + dy**2) **0.5
             
-            if dist < 1:
+            if dist < 5:
                 self.posIndex += 1
                 # print("reached")
             else:
@@ -529,7 +529,7 @@ class Golem:
             dy = targetY - self.sizeRect.centery
             dist = (dx**2 + dy**2) **0.5
             
-            if dist < 1:
+            if dist < 5:
                 self.posIndex += 1
             else:
                 if self.attacking:
@@ -1714,10 +1714,7 @@ while running:
                 troop.updatePos()
 
 
-        for troop in redTroops:
-            troop.drawSprite()
-        for troop in blueTroops:
-            troop.drawSprite()
+        
 
 
         for troop in redTroops:
@@ -1736,6 +1733,10 @@ while running:
                     troop.attack(red)
             if troop.attackTower(redTowers):
                 continue
+        for troop in redTroops:
+            troop.drawSprite()
+        for troop in blueTroops:
+            troop.drawSprite()   
         if redKingTower not in redTowers:
             screenNum = 5
             print("BLUE WON")
