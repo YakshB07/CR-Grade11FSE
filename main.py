@@ -1008,6 +1008,25 @@ blueElixirLastUpdate = time.get_ticks()
 redElixirLastUpdate = time.get_ticks()
 elixirMax = 10
 
+
+currentVolume = 0.5
+isMuted = False
+currentFps = 60
+showFps = False
+
+
+gameStartTime = 0
+gameLength = 120  
+isGameActive = False
+
+
+
+BluevictorText = frontFont.render("Blue WON!", True, WHITE)
+RedvictorText = frontFont.render("Red Won!", True, WHITE)
+homeText = frontFont.render("Home", True, WHITE)
+homeButton = Rect(580, 400, 200, 80)
+winner = "" 
+
 animationPicker = {
     "Wizard": {
         "Assasin": {
@@ -1241,7 +1260,7 @@ def moveInGrid(dir, w, h, player):
 
 
 def renderText(surface, text, font, color, rect):
-    lines = text.split('\n')  # Split by manual line breaks first
+    lines = text.split('\n')  
     space_width = font.size(' ')[0]
 
     x, y = rect.topleft
@@ -1253,7 +1272,6 @@ def renderText(surface, text, font, color, rect):
             word_surface = font.render(word, True, color)
             word_width, word_height = word_surface.get_size()
 
-            # If word doesn't fit, move to next line
             if x + word_width >= rect.right:
                 x = rect.left
                 y += word_height
@@ -1261,7 +1279,6 @@ def renderText(surface, text, font, color, rect):
             surface.blit(word_surface, (x, y))
             x += word_width + space_width
 
-        # After each new line, move to new line
         x = rect.left
         y += font.get_linesize()
 
@@ -1407,7 +1424,6 @@ while running:
     if screenNum == 1:
         screen.fill(BLACK)
         screen.blit(mainBackground, (0, 0))
-        # screen.blit(logo, (700-logo.get_height()/2, 50))
         draw.rect(screen, GREEN, PlayBox)
         screen.blit(playText,(PlayBox[0]+140,PlayBox[1]+20))
         draw.rect(screen, BLUE, HowToPlayBox)
@@ -1429,7 +1445,6 @@ while running:
         draw.line(screen, RED, (695, 0), (695, 695), 10)
         draw.rect(screen,BLACK,backRect)
         screen.blit(backText,(backRect[0]+40, backRect[1]+40))
-        # Draw player cards
         if not blueFinalCards:
             for i in range(5):
                 blueFinalCards.append(faceCards[blueRandom[i]])
@@ -1444,7 +1459,6 @@ while running:
             screen.blit(faceCards[redRandom[i]], RedPlayerCard[i])
         
 
-        # Handle reshuffles (only once per click, max 3 times)
         if blueReshuffle.collidepoint(mx, my) and mb[0] and not prev_mb[0] and blueReshuffleCount < 3:
             blueRandom = sample(range(1, 9), 5)
             blueReshuffleCount += 1
@@ -1453,7 +1467,6 @@ while running:
             redRandom = sample(range(1, 9), 5)
             redReshuffleCount += 1
 
-        # Draw reshuffle buttons (gray if used up)
         if blueReshuffleCount < 3:
             draw.rect(screen, WHITE, blueReshuffle)
         else:
@@ -1464,23 +1477,19 @@ while running:
         else:
             draw.rect(screen, (100, 100, 100), redReshuffle)
 
-        # Draw confirm buttons
         draw.rect(screen, GREEN, blueConfirm)
         draw.rect(screen, GREEN, redConfirm)
 
-        # Draw button text
         screen.blit(reshuffletext, (blueReshuffle[0] + 35, blueReshuffle[1] + 25))
         screen.blit(reshuffletext, (redReshuffle[0] + 35, redReshuffle[1] + 25))
         screen.blit(readyText, (blueConfirm[0] + 55, blueConfirm[1] + 25))
         screen.blit(readyText, (redConfirm[0] + 55, redConfirm[1] + 25))
 
-        # Draw reshuffles left text (updates every frame)
         blueLeft = textfont.render(f"{3 - blueReshuffleCount} left", True, WHITE)
         redLeft = textfont.render(f"{3 - redReshuffleCount} left", True, WHITE)
         screen.blit(blueLeft, (blueReshuffle[0] + 245, blueReshuffle[1] + 35))
         screen.blit(redLeft, (redReshuffle[0] + 245, redReshuffle[1] + 35))
 
-        # Confirm logic (once per click)
         if blueConfirm.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
             blueReady = True
             waitBlue = True
@@ -1489,7 +1498,6 @@ while running:
             redReady = True
             waitRed = True
 
-        # Waiting state visuals
         if waitBlue:
             draw.rect(screen, GREEN, blueConfirm)
             screen.blit(waitingText, (blueConfirm[0] + 55, blueConfirm[1] + 25))
@@ -1498,7 +1506,6 @@ while running:
             draw.rect(screen, GREEN, redConfirm)
             screen.blit(waitingText, (redConfirm[0] + 55, redConfirm[1] + 25))
 
-        # Move to next screen if both ready
         if blueReady and redReady:
             screenNum = 3
             blueReady = False
@@ -1516,20 +1523,43 @@ while running:
         screen.blit(gameBackground, (-50, 0))
         if blueTowers[-1].image != sideTower:
             print("yea??")
-        
-        # # Left Grid 
-        # for i in range(10):
-        #     draw.line(screen, GREEN, (350, i*46.5+210), (628, i*46.5+210), 2)
-        # for i in range(7):
-        #     draw.line(screen, GREEN, (i*47+347, 210), (i*47+347, 630), 2)
 
-        # # Right Grid
-        # for i in range(10):
-        #     draw.line(screen, GREEN, (760, i*46.5+210), (1040, i*46.5+210), 2)
-        # for i in range(7):
-        #     draw.line(screen, GREEN, (i*46.5+760, 210), (i*46.5+760, 630), 2)
+        if not isGameActive:
+            gameStartTime = time.get_ticks()
+            isGameActive = True
         
-        # Blue player
+        elapsedTime = (time.get_ticks() - gameStartTime) // 1000  
+        remainingTime = max(0, gameLength - elapsedTime)
+        minutes = remainingTime // 60
+        seconds = remainingTime % 60
+        
+        timeColor = RED if remainingTime <= 10 else WHITE
+        timeStr = f"{minutes:02d}:{seconds:02d}"
+        timerText = textfont.render(timeStr, True, timeColor)
+        
+        timerRect = timerText.get_rect(center=(width//2, 30))
+        screen.blit(timerText, timerRect)
+        
+        if remainingTime <= 0:
+            isGameActive = False
+            screenNum = 1  
+     
+            blueTroops.clear()
+            redTroops.clear()
+            blueElixir = 6
+            redElixir = 6
+            blueTowers = [
+                Tower("blue", 270, 190, sideTower),
+                Tower("blue", 250, 325, mainTower),
+                Tower("blue", 270, 510, sideTower)
+            ]
+            redTowers = [
+                Tower("red", 1070, 190, sideTower),
+                Tower("red", 1050, 325, mainTower),
+                Tower("red", 1070, 510, sideTower)
+            ]
+        
+        
         for i in range(9):
             for j in range(6):
                 if grid1[i][j] == 1:
@@ -1543,21 +1573,14 @@ while running:
                     redPlayerSelect = Rect(j*47+755, i*46.5+210, 50, 50)
                     draw.rect(screen, RED, (j*47+755, i*46.5+210, 50, 50), 5)
             
-        # print(mx, my)
-        # # Red Towers  
-        # screen.blit(sideTower, (270, 190))      
-        # screen.blit(mainTower, (250, 325))
-        # screen.blit(sideTower, (270, 510))
 
-# Draw and update blue towers
         for tower in blueTowers[:]:
             if tower.health > 0:
                 tower.draw(screen)
                 tower.attack(redTroops)
             else:
-                blueTowers.remove(tower)  # Remove destroyed tower
+                blueTowers.remove(tower) 
 
-        # Draw and update red towers
         for tower in redTowers[:]:
             if tower.health > 0:
                 tower.draw(screen)
@@ -1568,13 +1591,7 @@ while running:
         determinePath(blueTroops, blueTopTowerPath, blueBotTowerPath, blueTopKingTowerPath, blueBotTowerPath, redTowers)
         determinePath(redTroops, redTopTowerPath, redBotTowerPath, redTopKingTowerPath, redBotKingTowerPath, blueTowers)
         
-        # print(blueTowers[0].image == sideTower)if
-        # for troop in blueTroops:
-        #     print(troop.pathFound)
-        # # BLue Towers
-        # screen.blit(sideTower, (1070, 190))      
-        # screen.blit(mainTower, (1050, 325))
-        # screen.blit(sideTower, (1070, 510))
+
                         
         draw.rect(screen,BLUE,(0,147,183,406),2)
         draw.line(screen,WHITE,(40,150),(40,550))
@@ -1733,17 +1750,27 @@ while running:
                     troop.attack(red)
             if troop.attackTower(redTowers):
                 continue
-        for troop in redTroops:
-            troop.drawSprite()
-        for troop in blueTroops:
-            troop.drawSprite()   
-        if redKingTower not in redTowers:
-            screenNum = 5
-            print("BLUE WON")
+
+        if remainingTime <= 0:
+            screenNum = 7
+            blueTowerHealth = 0
+            redTowerHealth = 0
+            for tower in blueTowers:
+                blueTowerHealth += tower.health
+            for tower in redTowers:
+                redTowerHealth += tower.health
+            if blueTowerHealth > redTowerHealth:
+                winner = "blue"
+            elif redTowerHealth > blueTowerHealth:
+                winner = "red"
+            else:
+                winner = "tie"
+        elif redKingTower not in redTowers:
+            screenNum = 7
+            winner = "blue"
         elif blueKingTower not in blueTowers:
-            screenNum = 5
-            print("RED WON")
-        
+            screenNum = 7
+            winner = "red"
 
     elif screenNum == 4:
         screen.fill(BLACK)
@@ -1756,15 +1783,132 @@ while running:
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
 
+
     elif screenNum == 5:
         screen.fill(BLACK)
-        draw.rect(screen,BLACK,backRect)
-        screen.blit(backText,(backRect[0]+30, backRect[1]+40))
+        draw.rect(screen, BLACK, backRect)
+        screen.blit(backText, (backRect[0]+30, backRect[1]+40))
+        
+        volumeBar = Rect(400, 200, 300, 10)
+        volumeKnob = int(400 + (currentVolume * 300))
+        draw.rect(screen, GREY, volumeBar)
+        draw.rect(screen, WHITE, (volumeKnob-10, 190, 20, 30))
+        
+        volText = textfont.render(f"Volume: {int(currentVolume*100)}%", True, WHITE)
+        screen.blit(volText, (400, 150))
+
+        if mb[0]:
+            if mx >= 400 and mx <= 700:  
+                if my >= 190 and my <= 210:
+                    currentVolume = (mx - 400) / 300 
+                    if currentVolume > 1: currentVolume = 1
+                    if currentVolume < 0: currentVolume = 0
+                    
+                    if not isMuted:
+                        mixer.music.set_volume(currentVolume)
+
+        muteButton = Rect(750, 190, 160, 50)
+        buttonColor = (0, 200, 0) if isMuted else (200, 0, 0)  
+        draw.rect(screen, buttonColor, muteButton)
+        buttonText = textfont.render("Unmute" if isMuted else "Mute", True, WHITE)
+        screen.blit(buttonText, (770, 200))
+        
+        if muteButton.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
+            isMuted = not isMuted
+            if isMuted:
+                mixer.music.set_volume(0)
+            else:
+                mixer.music.set_volume(currentVolume)
+
+        fpsButtons = [(400, 300, 80, 40, 30), 
+                    (500, 300, 80, 40, 60),
+                    (600, 300, 80, 40, 120)]
+        
+        for button in fpsButtons:
+            x, y, w, h, fps = button
+            buttonRect = Rect(x, y, w, h)
+            color = GREEN if currentFps == fps else GREY
+            draw.rect(screen, color, buttonRect)
+            text = textfont.render(str(fps), True, WHITE)
+            screen.blit(text, (x+25, y+10))
+            
+            if buttonRect.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
+                currentFps = fps
+                myClock.tick(fps)
+
+        toggleButton = Rect(400, 370, 250, 50)
+        toggleColor = BLUE if showFps else GREY
+        draw.rect(screen, toggleColor, toggleButton)
+        toggleText = textfont.render("Show FPS: " + ("ON" if showFps else "OFF"), True, WHITE)
+        screen.blit(toggleText, (420, 380))
+        
+        if toggleButton.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
+            showFps = not showFps
+
+        
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
+
+    if showFps:
+        fps = int(myClock.get_fps())
+        fpsText = textfont.render(f"FPS: {fps}", True, YELLOW)
+        screen.blit(fpsText, (width-150, 10))
+
+    elif screenNum == 7:
+        screen.fill(BLACK)
+        
+        if winner == "blue":
+            screen.blit(BluevictorText, (550, 300))
+            draw.rect(screen, BLUE, (0, 0, width, 20)) 
+            draw.rect(screen, BLUE, (0, height-20, width, 20))
+        elif winner == "red":
+            screen.blit(RedvictorText, (550, 300))
+            draw.rect(screen, RED, (0, 0, width, 20))
+            draw.rect(screen, RED, (0, height-20, width, 20))
+        else: 
+            tieText = frontFont.render("It's a TIE!", True, WHITE)
+            screen.blit(tieText, (550, 300))
+            draw.rect(screen, YELLOW, (0, 0, width, 20))
+            draw.rect(screen, YELLOW, (0, height-20, width, 20))
+
+        draw.rect(screen, GREEN, homeButton)
+        screen.blit(homeText, (homeButton.x + 30, homeButton.y + 15))
+        
+
+        if homeButton.collidepoint(mx, my) and mb[0]:
+            screenNum = 1
+            # Reset everything
+            blueTroops.clear()
+            redTroops.clear()
+            blueElixir = 6
+            redElixir = 6
+            # Reset towers with FULL health
+            blueTowers = [
+                Tower("blue", 270, 190, sideTower, 800),  # Add health parameter
+                Tower("blue", 250, 325, mainTower, 800),
+                Tower("blue", 270, 510, sideTower, 800)
+            ]
+            redTowers = [
+                Tower("red", 1070, 190, sideTower, 800),
+                Tower("red", 1050, 325, mainTower, 800),
+                Tower("red", 1070, 510, sideTower, 800)
+            ]
+            # Reset other game state variables
+            winner = ""
+            isGameActive = False
+            blueReady = False
+            redReady = False
+            waitBlue = False  
+            waitRed = False
+            blueReshuffleCount = 0
+            redReshuffleCount = 0
+            # Clear final cards so new ones get generated
+            blueFinalCards.clear()
+            redFinalCards.clear()
+
+    myClock.tick(currentFps)
     prev_mb = mb
-      
-    myClock.tick(60)
+
     display.flip()
             
 quit()
