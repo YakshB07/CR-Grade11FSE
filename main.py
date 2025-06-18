@@ -293,6 +293,7 @@ class Barbarian:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
         self.health = health
+        self.maxHealth = health
         self.damage = damage
         self.dead = False
         self.deadAnim = deadAnim if deadAnim else []
@@ -411,6 +412,21 @@ class Barbarian:
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        bar_width = 50
+        bar_height = 6
+        x = self.sizeRect.centerx - bar_width // 2
+        y = self.sizeRect.centery - 40
+        health_ratio = max(self.health / self.maxHealth, 0)
+        health_bar_rect = Rect(x, y, int(bar_width * health_ratio), bar_height)
+        border_rect = Rect(x, y, bar_width, bar_height)
+        if self.side == "red":
+            draw.rect(screen, (255, 0, 0), health_bar_rect)
+            draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (105, 8, 8), border_rect, 2)
+        elif self.side == "blue":
+            draw.rect(screen, (0, 0, 255), health_bar_rect)
+            draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (8, 8, 105), border_rect, 2)
 
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
@@ -456,6 +472,8 @@ class Golem:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
         self.health = health
+        self.health = health
+        self.maxHealth = health
         self.damage = damage
         self.dead = False
         self.deadAnim = deadAnim if deadAnim else []
@@ -570,6 +588,21 @@ class Golem:
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        bar_width = 50
+        bar_height = 6
+        x = self.sizeRect.centerx - bar_width // 2
+        y = self.sizeRect.centery - 40
+        health_ratio = max(self.health / self.maxHealth, 0)
+        health_bar_rect = Rect(x, y, int(bar_width * health_ratio), bar_height)
+        border_rect = Rect(x, y, bar_width, bar_height)
+        if self.side == "red":
+            draw.rect(screen, (255, 0, 0), health_bar_rect)
+            draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (105, 8, 8), border_rect, 2)
+        elif self.side == "blue":
+            draw.rect(screen, (0, 0, 255), health_bar_rect)
+            draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (8, 8, 105), border_rect, 2)
     
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
