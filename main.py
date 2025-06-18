@@ -18,8 +18,9 @@ running=True
 
 frameCounter = 0
 redTopTowerPath = [(770, 371), (690, 370), (615, 371), (300, 250)]
+redTopKingTowerPath = [(770, 371), (690, 370), (615, 371), (260, 400)]
 redBotTowerPath = [(770, 471), (690, 470), (615, 471), (300, 560)]
-redTopKingTowerPath = [(770, 371), (690, 375), (615, 370), (300, 250), (1100, 400)]
+redBotKingTowerPath = [(770, 471), (690, 470), (615, 471), (260, 400)]
 
 blueTopTowerPath = [(615, 371), (690, 370), (770, 371), (1060, 250)]
 blueTopKingTowerPath =  [(615, 371), (690, 370), (770, 371), (1100, 400)]
@@ -28,24 +29,24 @@ blueBotKingTowerPath = [(615, 470), (690, 470), (770, 470), (1100, 400)]
 
 
 def determinePath(troops, topPath, botPath, topKingPath, botKingPath, towers):
-    finalPath = None
     for troop in troops:
-        if troop.pathFound == False:
+        if not troop.pathFound:
             topDist = ((troop.sizeRect.centerx - topPath[0][0])**2 + (troop.sizeRect.centery - topPath[0][1])**2) ** 0.5
             botDist = ((troop.sizeRect.centerx - botPath[0][0])**2 + (troop.sizeRect.centery - botPath[0][1])**2) ** 0.5
             if topDist < botDist:
-                if towers[0].surface != sideTower:
-                    finalPath = topKingPath
-                else:
-                    finalPath = topPath
+                troop.path = topPath
             else:
-                if towers[-1].surface != sideTower:
-                    finalPath = topKingPath
-                else:
-                    finalPath = botPath
-            # print(topDist, botDist)
-            troop.path = finalPath
+                troop.path = botPath
             troop.pathFound = True
+        if towers[0].image != sideTower and troop.path == topPath:
+                troop.path = topKingPath
+        if towers[-1].image != sideTower and troop.path == botPath:
+                troop.path = botKingPath
+                
+        
+        
+            
+
         
         
     
@@ -107,6 +108,7 @@ class Wizard:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
         self.health = health
+        self.maxHealth = health
         self.damage = damage
         self.attacking = False
         self.dead = False
@@ -191,6 +193,7 @@ class Wizard:
             
         
     def drawSprite(self):
+        
         if self.dead and self.deadAnim:
             frame = int(self.deadFrameCounter)
             if frame < len(self.deadAnim):
@@ -217,6 +220,21 @@ class Wizard:
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
+        bar_width = 50
+        bar_height = 6
+        x = self.sizeRect.centerx - bar_width // 2
+        y = self.sizeRect.centery - 40
+        health_ratio = max(self.health / self.maxHealth, 0)
+        health_bar_rect = Rect(x, y, int(bar_width * health_ratio), bar_height)
+        border_rect = Rect(x, y, bar_width, bar_height)
+        if self.side == "red":
+            draw.rect(screen, (255, 0, 0), health_bar_rect)
+            draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (105, 8, 8), border_rect, 2)
+        elif self.side == "blue":
+            draw.rect(screen, (0, 0, 255), health_bar_rect)
+            draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (8, 8, 105), border_rect, 2)
 
     def attackTower(self, towers):
         inRange = False
@@ -617,17 +635,22 @@ class Golem:
 mainTower = transform.scale(image.load("assets/towers/mainTower.png", "png"), (193/2, 254/2))
 sideTower = transform.scale(image.load("assets/towers/miniTower.png", "png"), (106/2, 178/2))
 blueTroops = []
-
+blueTopTower = Tower("blue", 270, 190, sideTower)
+blueKingTower = Tower("blue", 250, 325, mainTower)
+blueBotTower = Tower("blue", 270, 510, sideTower)
 blueTowers = [
-    Tower("blue", 270, 190, sideTower),
-    Tower("blue", 250, 325, mainTower),
-    Tower("blue", 270, 510, sideTower)
+    blueTopTower,
+    blueKingTower,
+    blueBotTower
 ]
 redTroops = []
+redTopTower = Tower("red", 1070, 190, sideTower)
+redKingTower = Tower("red", 1050, 325, mainTower)
+redBotTower = Tower("red", 1070, 510, sideTower)
 redTowers = [
-    Tower("red", 1070, 190, sideTower),
-    Tower("red", 1050, 325, mainTower),
-    Tower("red", 1070, 510, sideTower)
+    redTopTower,
+    redKingTower,
+    redBotTower
 ]
 
 
@@ -1458,6 +1481,8 @@ while running:
     elif screenNum == 3:
         screen.fill(BLACK)
         screen.blit(gameBackground, (-50, 0))
+        if blueTowers[-1].image != sideTower:
+            print("yea??")
         
         # # Left Grid 
         # for i in range(10):
@@ -1507,9 +1532,10 @@ while running:
             else:
                 redTowers.remove(tower)
         
-        determinePath(blueTroops, blueTopTowerPath, blueBotTowerPath, blueTopKingTowerPath, blueBotTowerPath, blueTowers)
-        determinePath(redTroops, redTopTowerPath, redTopKingTowerPath, redBotTowerPath, redTopKingTowerPath)
+        determinePath(blueTroops, blueTopTowerPath, blueBotTowerPath, blueTopKingTowerPath, blueBotTowerPath, redTowers)
+        determinePath(redTroops, redTopTowerPath, redBotTowerPath, redTopKingTowerPath, redBotKingTowerPath, blueTowers)
         
+        # print(blueTowers[0].image == sideTower)if
         # for troop in blueTroops:
         #     print(troop.pathFound)
         # # BLue Towers
@@ -1677,6 +1703,13 @@ while running:
                     troop.attack(red)
             if troop.attackTower(redTowers):
                 continue
+        if redKingTower not in redTowers:
+            screenNum = 5
+            print("BLUE WON")
+        elif blueKingTower not in blueTowers:
+            screenNum = 5
+            print("RED WON")
+        
 
     elif screenNum == 4:
         screen.fill(BLACK)
