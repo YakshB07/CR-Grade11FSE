@@ -1712,6 +1712,8 @@ while running:
             else:
                 redTowers.remove(tower)
 
+
+
         for troop in redTroops[:]:
             if troop.health <= 0 and not troop.dead:
                 troop.dead = True
@@ -1731,9 +1733,12 @@ while running:
                 troop.updatePos()
 
 
-        
+        for troop in redTroops:
+            troop.drawSprite()
+        for troop in blueTroops:
+            troop.drawSprite() 
 
-
+            
         for troop in redTroops:
             if isinstance(troop, Wizard):
                 troop.attack(blueTroops)
@@ -1750,7 +1755,10 @@ while running:
                     troop.attack(red)
             if troop.attackTower(redTowers):
                 continue
-
+        for troop in redTroops:
+            troop.drawSprite()
+        for troop in blueTroops:
+            troop.drawSprite() 
         if remainingTime <= 0:
             screenNum = 7
             blueTowerHealth = 0
