@@ -18,17 +18,15 @@ running=True
 
 frameCounter = 0
 redTopTowerPath = [(770, 371), (690, 370), (615, 371), (300, 250)]
-redTopKingTowerPath = [(770, 371), (690, 370), (615, 371), (260, 400)]
 redBotTowerPath = [(770, 471), (690, 470), (615, 471), (300, 560)]
-redBotKingTowerPath = [(770, 471), (690, 470), (615, 471), (260, 400)]
+redKingTowerPos = (260, 400)
 
 blueTopTowerPath = [(615, 371), (690, 370), (770, 371), (1060, 250)]
-blueTopKingTowerPath =  [(615, 371), (690, 370), (770, 371), (1100, 400)]
 blueBotTowerPath = [(615, 470), (690, 470), (770, 470), (1060, 560)]
-blueBotKingTowerPath = [(615, 470), (690, 470), (770, 470), (1100, 400)]
+blueKingTowerPos = (1100, 400)
 
 
-def determinePath(troops, topPath, botPath, topKingPath, botKingPath, towers):
+def determinePath(troops, topPath, botPath, kingPos, towers):
     for troop in troops:
         if not troop.pathFound:
             topDist = ((troop.sizeRect.centerx - topPath[0][0])**2 + (troop.sizeRect.centery - topPath[0][1])**2) ** 0.5
@@ -39,9 +37,14 @@ def determinePath(troops, topPath, botPath, topKingPath, botKingPath, towers):
                 troop.path = botPath
             troop.pathFound = True
         if towers[0].image != sideTower and troop.path == topPath:
-                troop.path = topKingPath
-        if towers[-1].image != sideTower and troop.path == botPath:
-                troop.path = botKingPath
+            troop.path[-1] = kingPos
+            if troop.posIndex >= len(troop.path):
+                troop.posIndex = len(troop.path) - 1
+        elif towers[-1].image != sideTower and troop.path == botPath:
+            troop.path[-1] = kingPos
+            if troop.posIndex >= len(troop.path):
+                troop.posIndex = len(troop.path) - 1
+
                 
         
         
@@ -123,8 +126,8 @@ class Wizard:
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
         self.attackAnim = attackAnim  
-        self.attackRad = 80
-        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad/5, self.attackRad*2, self.attackRad*2)
+        self.attackRad = 100
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad*2, self.attackRad*2, self.attackRad*2)
         self.animationList = self.runAnim
         self.animationIndex = animIndex
         self.attackCooldown = 0
@@ -193,7 +196,6 @@ class Wizard:
             
         
     def drawSprite(self):
-        
         if self.dead and self.deadAnim:
             frame = int(self.deadFrameCounter)
             if frame < len(self.deadAnim):
@@ -228,13 +230,17 @@ class Wizard:
         health_bar_rect = Rect(x, y, int(bar_width * health_ratio), bar_height)
         border_rect = Rect(x, y, bar_width, bar_height)
         if self.side == "red":
+            self.attackBox = Rect(self.sizeRect.centerx-self.attackRad*1.5, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad)
             draw.rect(screen, (255, 0, 0), health_bar_rect)
             draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
             draw.rect(screen, (105, 8, 8), border_rect, 2)
         elif self.side == "blue":
+            self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad, self.attackRad*2.2, self.attackRad*2)
             draw.rect(screen, (0, 0, 255), health_bar_rect)
             draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
             draw.rect(screen, (8, 8, 105), border_rect, 2)
+        draw.rect(screen, GREY, self.attackBox, 5)
+
 
     def attackTower(self, towers):
         inRange = False
@@ -309,7 +315,7 @@ class Barbarian:
         self.runAnim = runAnim
         self.attackAnim = attackAnim
         self.attackRad = 40
-        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad/5, self.attackRad*2, self.attackRad*2)
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad*1.2)
         self.animationList = self.runAnim
         self.detectRad = 100
         self.detectBox = Rect(self.sizeRect.centerx-self.detectRad/2, self.sizeRect.centery-self.detectRad/2, self.detectRad, self.detectRad)
@@ -420,10 +426,12 @@ class Barbarian:
         health_bar_rect = Rect(x, y, int(bar_width * health_ratio), bar_height)
         border_rect = Rect(x, y, bar_width, bar_height)
         if self.side == "red":
+            self.attackBox = Rect(self.sizeRect.centerx-self.attackRad*1.5, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad*1.2)
             draw.rect(screen, (255, 0, 0), health_bar_rect)
             draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
             draw.rect(screen, (105, 8, 8), border_rect, 2)
         elif self.side == "blue":
+            self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad*1.2)
             draw.rect(screen, (0, 0, 255), health_bar_rect)
             draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
             draw.rect(screen, (8, 8, 105), border_rect, 2)
@@ -488,8 +496,8 @@ class Golem:
         self.frameSpeed = frameSpeed
         self.runAnim = runAnim
         self.attackAnim = attackAnim
-        self.attackRad = 60
-        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad, self.sizeRect.centery-self.attackRad/5, self.attackRad*2, self.attackRad*2)
+        self.attackRad = 80
+        self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad)
         self.detectRad = 80
         self.detectBox = Rect(self.sizeRect.centerx-self.detectRad/2, self.sizeRect.centery-self.detectRad/2, self.detectRad, self.detectRad)
         self.animationList = self.runAnim
@@ -603,7 +611,7 @@ class Golem:
             draw.rect(screen, (0, 0, 255), health_bar_rect)
             draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
             draw.rect(screen, (8, 8, 105), border_rect, 2)
-    
+        draw.rect(screen, GREY, self.attackBox, 5)
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
             self.attackingTroop = True
@@ -1521,8 +1529,7 @@ while running:
     elif screenNum == 3:
         screen.fill(BLACK)
         screen.blit(gameBackground, (-50, 0))
-        if blueTowers[-1].image != sideTower:
-            print("yea??")
+        
 
         if not isGameActive:
             gameStartTime = time.get_ticks()
@@ -1588,8 +1595,8 @@ while running:
             else:
                 redTowers.remove(tower)
         
-        determinePath(blueTroops, blueTopTowerPath, blueBotTowerPath, blueTopKingTowerPath, blueBotTowerPath, redTowers)
-        determinePath(redTroops, redTopTowerPath, redBotTowerPath, redTopKingTowerPath, redBotKingTowerPath, blueTowers)
+        determinePath(blueTroops, blueTopTowerPath, blueBotTowerPath, blueKingTowerPos, redTowers)
+        determinePath(redTroops, redTopTowerPath, redBotTowerPath, redKingTowerPos, blueTowers)
         
 
                         
@@ -1736,7 +1743,7 @@ while running:
         for troop in redTroops:
             troop.drawSprite()
         for troop in blueTroops:
-            troop.drawSprite() 
+            troop.drawSprite()
 
             
         for troop in redTroops:
