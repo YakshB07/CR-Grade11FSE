@@ -255,7 +255,6 @@ class Wizard:
             draw.rect(screen, (0, 0, 255), health_bar_rect)
             draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, barWidth - health_bar_rect.width, barHeight))
             draw.rect(screen, (8, 8, 105), border_rect, 2)
-        draw.rect(screen, GREY, self.attackBox, 5)
 
 
     def attackTower(self, towers):
@@ -628,7 +627,7 @@ class Golem:
             draw.rect(screen, (0, 0, 255), health_bar_rect)
             draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
             draw.rect(screen, (8, 8, 105), border_rect, 2)
-        draw.rect(screen, GREY, self.attackBox, 5)
+
     def attack(self, opponent):
         if self.attackBox.colliderect(opponent.sizeRect) and not self.dead and not opponent.dead:
             self.attackingTroop = True
