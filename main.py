@@ -307,7 +307,7 @@ class Wizard:
                     if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                         targetEnemy.health -= self.damage  
                         self.hasDealtDamage = True 
-                        print("Attacked")
+                        print(int(self.frameCounter))
                     else:
                         self.hasDealtDamage = False
             else:
@@ -851,7 +851,7 @@ assassinAttackAnimation = False
 femaleWizardRunIndex = 0
 femaleWizardAttackIndex = 0
 femaleWizardFrameCounter = 0
-femaleWizardFrameSpeed = 0.075
+femaleWizardFrameSpeed = 0.08
 femaleWizardRunningAnimation = False
 femaleWizardAttackAnimation = False
 
@@ -875,7 +875,7 @@ icemenAttackAnimation = False
 golemRunIndex = 0
 golemAttackIndex = 0
 golemFrameCounter = 0
-golemFrameSpeed = 0.05
+golemFrameSpeed = 0.04
 golemRunningAnimation = False
 golemAttackAnimation = False
 
@@ -891,7 +891,7 @@ jackAttackAnimation = False
 knightRunIndex = 0
 knightAttackIndex = 0
 knightFrameCounter = 0
-knightFrameSpeed = 0.05
+knightFrameSpeed = 0.06
 knightRunningAnimation = False
 knightAttackAnimation = False
 
@@ -899,7 +899,7 @@ knightAttackAnimation = False
 maleWizardRunIndex = 0
 maleWizardAttackIndex = 0
 maleWizardFrameCounter = 0
-maleWizardFrameSpeed = 0.075
+maleWizardFrameSpeed = 0.065
 maleWizardRunningAnimation = False
 maleWizardAttackAnimation = False
 
@@ -907,7 +907,7 @@ maleWizardAttackAnimation = False
 spearmenRunIndex = 0
 spearmenAttackIndex = 0
 spearmenFrameCounter = 0
-spearmenFrameSpeed = 0.05
+spearmenFrameSpeed = 0.055
 spearmenRunningAnimation = False
 spearmenAttackAnimation = False
 
@@ -1379,7 +1379,7 @@ while running:
                     # making a new object using the class constructor according to the troop type
                     # passing in all the stats and animations from the animation picker
                     if troopType == "Wizard":
-                        blueTroops.append(Wizard("blue", 250, 80, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                        blueTroops.append(Wizard("blue", 250, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1387,7 +1387,7 @@ while running:
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Barbarian":
-                        blueTroops.append(Barbarian("blue", 120, 35, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                        blueTroops.append(Barbarian("blue", 500, 35, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1395,7 +1395,7 @@ while running:
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Golem":
-                        blueTroops.append(Golem("blue", 400, 100, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
+                        blueTroops.append(Golem("blue", 1000, 75, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1434,7 +1434,7 @@ while running:
                     # making a new object using the class constructor according to the troop type
                     # passing in all the stats and animations from the animation picker
                     if troopType == "Wizard":
-                        redTroops.append(Wizard("red", 250, 80, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Wizard("red", 250, 100, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1442,7 +1442,7 @@ while running:
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Barbarian":
-                        redTroops.append(Barbarian("red", 120, 35, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Barbarian("red", 500, 35, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
@@ -1450,7 +1450,7 @@ while running:
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
                     elif troopType == "Golem":
-                        redTroops.append(Golem("red", 400, 100, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
+                        redTroops.append(Golem("red", 1000, 75, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
                                                 animationPicker[troopType][cardType]["frameSpeed"],
                                                 animationPicker[troopType][cardType]["runAnim"],
