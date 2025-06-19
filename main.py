@@ -969,23 +969,35 @@ settingsText = frontFont.render("Settings", True, BLACK)
 backFont = font.Font("assets/Clash-Royale-Font/font.ttf", 30)
 backText = backFont.render("Back", True,WHITE)
 
-gameDescriptionFont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
+gameDescriptionFont = font.Font("assets/Clash-Royale-Font/font.ttf", 14)
 
-gameDescription = """How to Play: Knight Royale
+gameDescription = """HOW TO PLAY
+Knight Royale! A 2-player tower-smashing duel!
 
-Knight Royale is a fast-paced 2-player strategy game where you use random cards to destroy your opponent's towers.
+1. DRAFT YOUR DECK
+Get 5 random troop cards (reshuffle 3x if needed).
+Hit READY to lock in.
 
-Step 1: Card Selection
-    At the start, you'll get a random deck. You can reshuffle up to 3 times. Click 'Ready' when     you're set.
+2. DEPLOY & DESTROY
+Blue (Player 1):
+Move: W/A/S/D
+Select card: 1/2/3/4
+Place: E (costs elixir).
 
-Step 2: The Battle
-    - Player 1: W, A, S, D to place cards
-    - Player 2: I, J, K, L to selct where to place and U to place your desire
-    Each card costs elixir — manage it wisely and play smart to attack and defend.
+Red (Player 2):
+Move: I/J/K/L
+Select card: 7/8/9/0
+Place: U (costs elixir).
 
-Step 3: Destroy the Towers
-    Break through your opponent's defense and destroy their towers before they destroy 
-    yours!
+Troop Types:
+- Wizards (5): Ranged damage, low HP.
+- Barbarians (3): Fast, cheap, melee.
+- Golems (7): Tanks—slow but deadly.
+
+3. WIN CONDITION
+Wreck the enemy King Tower (center) before they wreck yours!
+Side towers fall first? Troops reroute to the King.
+Pro Tip: Balance elixir spending—don't spam!
 """
 
 prev_mb = (0, 0, 0)
