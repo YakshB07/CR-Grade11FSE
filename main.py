@@ -16,7 +16,10 @@ ELIXERCOLOR = (176, 122, 255)
 myClock=time.Clock()
 running=True
 
+#used for animations
 frameCounter = 0
+
+# Define the paths that troops will follow for both red and blue sides
 redTopTowerPath = [(770, 371), (690, 370), (615, 371), (300, 250)]
 redBotTowerPath = [(770, 471), (690, 470), (615, 471), (300, 560)]
 redKingTowerPos = (260, 400)
@@ -29,12 +32,15 @@ blueKingTowerPos = (1100, 400)
 def determinePath(troops, topPath, botPath, kingPos, towers):
     for troop in troops:
         if not troop.pathFound:
+        # Calculate distance to top and bottom path starting points
             topDist = ((troop.sizeRect.centerx - topPath[0][0])**2 + (troop.sizeRect.centery - topPath[0][1])**2) ** 0.5
             botDist = ((troop.sizeRect.centerx - botPath[0][0])**2 + (troop.sizeRect.centery - botPath[0][1])**2) ** 0.5
+            # Choose the closer path           
             if topDist < botDist:
                 troop.path = topPath
             else:
                 troop.path = botPath
+        # If the side tower is destroyed go to king tower path
             troop.pathFound = True
         if towers[0].image != sideTower and troop.path == topPath:
             troop.path[-1] = kingPos
@@ -67,7 +73,7 @@ def findKeys(value, dict):
 
 
 
-
+# Tower class with all its attributes and methods
 class Tower:
     def __init__(self, side, x, y, image, health=800):
         self.side = side  
@@ -82,31 +88,36 @@ class Tower:
         self.frameCounter = 0
         self.attackSpeed = 1  
         self.lastAttack = 0
-
+    # Draw the tower and its health bar
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
-        bar_width = self.image.get_width()
-        bar_height = 8
-        health_ratio = max(self.health / self.max_health, 0)
-        health_bar_rect = Rect(self.x, self.y - 12, int(bar_width * health_ratio), bar_height)
-        border_rect = Rect(self.x, self.y - 12, bar_width, bar_height)
-        draw.rect(surface, (0, 255, 0), health_bar_rect)
-        draw.rect(surface, (255, 0, 0), Rect(self.x + health_bar_rect.width, self.y - 12, bar_width - health_bar_rect.width, bar_height))
-        draw.rect(surface, (255, 255, 255), border_rect, 2)
+        barWidth = self.image.get_width()
+        barHeight = 8
+        healthRatio = max(self.health / self.max_health, 0)
+        healthBarRect = Rect(self.x, self.y - 12, int(barWidth * healthRatio), barHeight)
+        borderRect = Rect(self.x, self.y - 12, barWidth, barHeight)
+        draw.rect(surface, (0, 255, 0), healthBarRect)
+        draw.rect(surface, (255, 0, 0), Rect(self.x + healthBarRect.width, self.y - 12, barWidth - healthBarRect.width, barHeight))
+        draw.rect(surface, (255, 255, 255), borderRect, 2)
 
+    # Attack enemy troops if they are in range
     def attack(self, enemy_troops):
         now = time.get_ticks()
         if now - self.lastAttack < 1000 / self.attackSpeed:
             return  
         for troop in enemy_troops:
             if not troop.dead:
+                #calculate distance to the troop
                 dx = (troop.sizeRect.centerx - (self.x + self.image.get_width() // 2))
                 dy = (troop.sizeRect.centery - (self.y + self.image.get_height() // 2))
                 dist = (dx ** 2 + dy ** 2) ** 0.5
+                # If the troop is within attack range deal damage
                 if dist <= self.attack_range:
                     troop.health -= self.damage
                     self.lastAttack = now
-                    break  
+                    break  # Only attack one troop per cycle
+
+# Wizard class with all its attributes and methods       
 class Wizard:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
@@ -142,16 +153,12 @@ class Wizard:
         self.attackSpeed = 1 
         self.pathFound = False
 
+
+# Update the wizard's position along its path or towards an enemy
     def updatePos(self):
         if self.dead:
             return
-        # for enemy in enemies:
-        #     if self.detectBox.colliderect(enemy.sizeRect):
-        #         self.isFollowing = True
-        #         opponent = enemy
-        #         break
-        #     else:
-        #         self.isFollowing == True
+        # If not following an enemy, move along the path to the tower
         if self.isFollowing == False:
             if self.posIndex >= len(self.path):
                 return
@@ -173,7 +180,8 @@ class Wizard:
                     self.sizeRect.centery += int(self.speed * dy/dist)
                     self.attackBox.centery += int(self.speed * dy/dist)
                     self.detectBox.centery += int(self.speed * dy/dist)
-        
+       
+        # If following an enemy move towards it
         else:
             wox = opponent.sizeRect.centerx - self.sizeRect.centerx
             woy = opponent.sizeRect.centery - self.sizeRect.centery
@@ -194,22 +202,25 @@ class Wizard:
                 self.attackBox.centery += int(self.speed * woy/wdist)
                 self.detectBox.centery += int(self.speed * woy/wdist)
             
-        
+# Draw the wizard and its health bar 
     def drawSprite(self):
+        
         if self.dead and self.deadAnim:
             frame = int(self.deadFrameCounter)
             if frame < len(self.deadAnim):
                 img = self.deadAnim[frame]
+        # Flip the image if the wizard is on the red team
                 if self.side == "red":
                     img = transform.flip(img, True, False)
                 screen.blit(img, (self.sizeRect.centerx-25, self.sizeRect.centery-25))
                 self.deadFrameCounter += 0.15
             return
+        # Choose the correct animation (attack or run)
         if self.attacking:
             self.animationList = self.attackAnim
         else:
             self.animationList = self.runAnim
-
+        # Update the frame counter and draw the current frame
         prevFrame = int(self.frameCounter)
         self.frameCounter += self.frameSpeed
         currFrame = int(self.frameCounter)
@@ -218,69 +229,80 @@ class Wizard:
         if self.frameCounter >= len(self.animationList):
             self.frameCounter = 0
         self.animationIndex = int(self.frameCounter)
+        # Draw the wizard sprite, flipping if red
         if self.side == "red":
             screen.blit(transform.flip(self.animationList[self.animationIndex], True, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
         elif self.side == "blue":
             screen.blit(transform.flip(self.animationList[self.animationIndex], False, False), (self.sizeRect.centerx-25, self.sizeRect.centery-25))
-        bar_width = 50
-        bar_height = 6
-        x = self.sizeRect.centerx - bar_width // 2
+        
+        # Draw the health bar above the wizard
+        barWidth = 50
+        barHeight = 6
+        x = self.sizeRect.centerx - barWidth // 2
         y = self.sizeRect.centery - 40
         health_ratio = max(self.health / self.maxHealth, 0)
-        health_bar_rect = Rect(x, y, int(bar_width * health_ratio), bar_height)
-        border_rect = Rect(x, y, bar_width, bar_height)
+        health_bar_rect = Rect(x, y, int(barWidth * health_ratio), barHeight)
+        border_rect = Rect(x, y, barWidth, barHeight)
         if self.side == "red":
             self.attackBox = Rect(self.sizeRect.centerx-self.attackRad*1.5, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad)
             draw.rect(screen, (255, 0, 0), health_bar_rect)
-            draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, barWidth - health_bar_rect.width, barHeight))
             draw.rect(screen, (105, 8, 8), border_rect, 2)
         elif self.side == "blue":
             self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad, self.attackRad*2.2, self.attackRad*2)
             draw.rect(screen, (0, 0, 255), health_bar_rect)
-            draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, bar_width - health_bar_rect.width, bar_height))
+            draw.rect(screen, (5, 5, 105), Rect(x + health_bar_rect.width, y, barWidth - health_bar_rect.width, barHeight))
             draw.rect(screen, (8, 8, 105), border_rect, 2)
         draw.rect(screen, GREY, self.attackBox, 5)
 
 
     def attackTower(self, towers):
-        inRange = False
-        for tower in towers[:]:
-            if not self.dead and tower.health > 0:
-                dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
-                dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
-                dist = (dx**2 + dy**2) ** 0.5
-                if dist <= self.attackRad:
-                    inRange = True
-                    now = time.get_ticks()
-                    if now - self.lastAttack >= 1000 / self.attackSpeed:
-                        tower.health -= self.damage
-                        self.lastAttack = now
-                    break
+            # Checks if any tower is in range to attack
+            inRange = False
+            for tower in towers[:]:
+                if not self.dead and tower.health > 0:
+                    # Calculate distance to the center of the tower
+                    dx = tower.x + tower.image.get_width() // 2 - self.sizeRect.centerx
+                    dy = tower.y + tower.image.get_height() // 2 - self.sizeRect.centery
+                    dist = (dx**2 + dy**2) ** 0.5
+                    # If within attack radius, attack the tower
+                    if dist <= self.attackRad:
+                        inRange = True
+                        now = time.get_ticks()
+                        # Check if enough time has passed to attack again
+                        if now - self.lastAttack >= 1000 / self.attackSpeed:
+                            tower.health -= self.damage
+                            self.lastAttack = now
+                        break
 
-        self.attackingTower = inRange
-        if inRange:
-            if not self.attacking:
-                self.hasDealtDamage = False
-            self.attacking = True
-            self.animationList = self.attackAnim
-            return True
-        else:
-            return False
+            self.attackingTower = inRange
+            if inRange:
+                # Start attack animation if not already attacking
+                if not self.attacking:
+                    self.hasDealtDamage = False
+                self.attacking = True
+                self.animationList = self.attackAnim
+                return True
+            else:
+                return False
 
     def attack(self, enemies):
+            # Check if the wizard is dead
             if self.dead:
                 self.attacking = False
                 return
 
             inRange = False
+            # Check if any enemy is within the attack box if yes then set inRange to True
             for enemy in enemies:
                 if not enemy.dead and self.attackBox.colliderect(enemy.sizeRect):
                     inRange = True
                     break
-
+            # If an enemy is in range, attack them
             if inRange:
                 self.attacking = True
-     
+
+            # only deal damage if the wizard is attacking and the frame counter is at the last frame of the attack animation
                 if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
                     for enemy in enemies:
                         if not enemy.dead:
@@ -294,7 +316,7 @@ class Wizard:
                 self.attacking = False
                 self.hasDealtDamage = False
 
-
+# Barbarian class with all its attributes and methods
 class Barbarian:
     def __init__(self, side, health, damage, width, speed, path, spwnX, spwxY, frameCounter, frameSpeed, runAnim, attackAnim, animIndex, deadAnim=None):
         self.side = side
@@ -694,7 +716,7 @@ redTowers = [
     redBotTower
 ]
 
-
+# Lists to hold the animations for each troop type
 assassinAttack=[]
 assassinDead = []
 assassinRun = []
@@ -739,6 +761,7 @@ faceCardsPath = []
 blueRandom = []
 redRandom = []
 
+# Load the animations for each troop type and append them to the lists
 for i in range(1, 9):
     assassinAttack.append(transform.scale(image.load("assets/assassin-attack/assassin-attack"+ str(i) +".png"), (50, 50)))
 
@@ -831,10 +854,14 @@ for i in range(1, 5):
 for i in range(1, 6):
     spearmenWalk.append(transform.scale(image.load("assets/spearmen-walk/spearman-walk"+ str(i) +".png"), (50, 50)))
 
+HowToPlaypic = transform.scale(image.load("assets/howto.png"), (400, 100))
+settingspic = transform.scale(image.load("assets/settings.png"), (400, 100))
+playpic = transform.scale(image.load("assets/play.png"), (400, 100))
+
+settingsbg = transform.scale(image.load("assets/settingsbg.jpg"), (1400, 700))
 
 
-
-    
+# Variables for each troop type's animation
 # Assassin - Wizard
 assassinRunIndex = 0
 assassinAttackIndex = 0
@@ -914,7 +941,7 @@ frameSpeed = 0.1
 
 
 
-
+# Load the face cards
 for i in range(9):
     faceCards.append(image.load("assets/mainFace/mainface"+ str(i+1) +".png"))
     faceCardsPath.append("assets/mainFace/mainface"+ str(i+1) +".png")
@@ -923,35 +950,33 @@ for i in range(9):
 for i in range(9):
     faceCards[i] = transform.scale(faceCards[i], (130,130))
 
-
+# Load the main screen assets
 logo = image.load("assets/mainScreenAssets/FSELogo.png")
 logo = transform.scale(logo, (1024/4, 1024/4))
 mainBackground = image.load("assets/mainScreenAssets/FSEMainBackground.png", "png")
 mainBackground = transform.scale(mainBackground, (980*1.5, 626*1.5))
 
-# mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
-# mixer.music.play(10)
+mixer.music.load("assets/mainScreenAssets/Pufino - Swing (freetouse.com).mp3", "mp3")
+mixer.music.play(10)
 gameBackground = image.load("assets/mainScreenAssets/GameBackground.png", "png")
 gameBackground = transform.scale(gameBackground, (gameBackground.get_width()*1, gameBackground.get_height()*1))
-# mixer.music.load("assets\\mainScreenAssets\Pufino - Swing (freetouse.com).mp3", "mp3")
-# mixer.music.play(10)
+
 
 # Main screen boxes 
 PlayBox = Rect(50, 500, 400, 100)
 HowToPlayBox = Rect(500, 500, 400, 100)
 SettingsBox = Rect(950, 500, 400, 100)
-draw.rect(screen, GREEN, PlayBox)
-draw.rect(screen, BLUE, HowToPlayBox)
-draw.rect(screen, GREY, SettingsBox)
+
 
 
 # Card Shown
 continueBox = Rect(1175, 575, 200, 100)
 
-
+# Card Rectangles
 bluePlayerCard =[Rect(100,45,135,150),Rect(285,45,135,150), Rect(470,45,135,150), Rect(200,225,135,150), Rect(385,225,135,150)]
 RedPlayerCard =[Rect(795,45,135,150),Rect(980,45,135,150), Rect(1165,45,135,150), Rect(895,225,135,150), Rect(1080,225,135,150)]
 
+# Reshuffle and Confirm Rectangles and other text 
 blueReshuffle = Rect(240,450,225,75)
 blueConfirm = Rect(240,550,225,75)
 textfont = font.Font("assets/Clash-Royale-Font/font.ttf", 20)
@@ -962,6 +987,7 @@ frontFont = font.Font("assets/Clash-Royale-Font/font.ttf", 40)
 playText = frontFont.render("Play", True, BLACK)
 HowToPlayText = frontFont.render("How to Play", True, BLACK)
 settingsText = frontFont.render("Settings", True, BLACK)
+
 
 backFont = font.Font("assets/Clash-Royale-Font/font.ttf", 30)
 backText = backFont.render("Back", True,WHITE)
@@ -987,6 +1013,7 @@ Step 3: Destroy the Towers
 
 prev_mb = (0, 0, 0)
 
+# Game Variables
 blueReshuffleCount = 0
 redReshuffleCount = 0
 mouseClicked = False
@@ -1035,6 +1062,7 @@ homeText = frontFont.render("Home", True, WHITE)
 homeButton = Rect(580, 400, 200, 80)
 winner = "" 
 
+# Animation Picker nested dictionary 
 animationPicker = {
     "Wizard": {
         "Assasin": {
@@ -1153,9 +1181,7 @@ animationPicker = {
 }
 
 
-
-
-
+# Grids for player movement
 grid1 = [[0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
@@ -1177,51 +1203,62 @@ grid2 = [[0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0]]
 
 
+# function to move the player in the grid based on the key they press 
 
 def moveInGrid(dir, w, h, player):
+    # If it's player 1
     if player == 1:
+        # Moving right
         if dir == "right":
-            for i in range(h):
-                for j in range(w):
-                    if grid1[i][j] == 1:
-                        grid1[i][j] = 0
-                        if j == w-1:
+            for i in range(h):  # Loop through each row
+                for j in range(w):  # Loop through each column
+                    if grid1[i][j] == 1:  # Find where player 1 is
+                        grid1[i][j] = 0  # Remove player from current position
+                        if j == w-1:  # If at the end of row, wrap to start
                             grid1[i][0] = 1
                         else:
-                            grid1[i][j+1] = 1
-                        return
+                            grid1[i][j+1] = 1  # Move one step right
+                        return  # Stop looping once moved
+
+        # Moving left
         if dir == "left":
             for i in range(h):
                 for j in range(w):
                     if grid1[i][j] == 1:
                         grid1[i][j] = 0
-                        if j == 0:
+                        if j == 0:  # If at the beginning, wrap to end
                             grid1[i][w-1] = 1
                         else:
-                            grid1[i][j-1] = 1
+                            grid1[i][j-1] = 1  # Move one step left
                         return
+
+        # Moving down
         if dir == "down":
             for i in range(h):
                 for j in range(w):
                     if grid1[i][j] == 1:
                         grid1[i][j] = 0
-                        if i == h-1:
+                        if i == h-1:  # If at bottom, go to top row
                             grid1[0][j] = 1
                         else:
-                            grid1[i+1][j] = 1
+                            grid1[i+1][j] = 1  # Move one step down
                         return
+
+        # Moving up
         if dir == "up":
             for i in range(h):
                 for j in range(w):
                     if grid1[i][j] == 1:
                         grid1[i][j] = 0
-                        # print(i)
-                        if i == 0:
+                        if i == 0:  # If at top, wrap to bottom row
                             grid1[h-1][j] = 1
                         else:
-                            grid1[i-1][j] = 1
+                            grid1[i-1][j] = 1  # Move one step up
                         return
+
+    # If it's player 2
     elif player == 2:
+        # Moving right
         if dir == "right":
             for i in range(h):
                 for j in range(w):
@@ -1232,6 +1269,8 @@ def moveInGrid(dir, w, h, player):
                         else:
                             grid2[i][j+1] = 1
                         return
+
+        # Moving left
         if dir == "left":
             for i in range(h):
                 for j in range(w):
@@ -1242,6 +1281,8 @@ def moveInGrid(dir, w, h, player):
                         else:
                             grid2[i][j-1] = 1
                         return
+
+        # Moving down
         if dir == "down":
             for i in range(h):
                 for j in range(w):
@@ -1252,21 +1293,22 @@ def moveInGrid(dir, w, h, player):
                         else:
                             grid2[i+1][j] = 1
                         return
+
+        # Moving up
         if dir == "up":
             for i in range(h):
                 for j in range(w):
                     if grid2[i][j] == 1:
                         grid2[i][j] = 0
-                        # print(i)
                         if i == 0:
                             grid2[h-1][j] = 1
                         else:
                             grid2[i-1][j] = 1
                         return
-                    
 
 
 
+#function to render text in a given rectangle (used from the paint assignment)
 def renderText(surface, text, font, color, rect):
     lines = text.split('\n')  
     space_width = font.size(' ')[0]
@@ -1290,6 +1332,7 @@ def renderText(surface, text, font, color, rect):
         x = rect.left
         y += font.get_linesize()
 
+# randomly shuffle the cards for both players
 for i in range(5):
     blueRandom = sample(range(1, 9), 5)  
     redRandom = sample(range(1, 9), 5) 
@@ -1303,6 +1346,7 @@ while running:
         if evt.type==QUIT:
             running=False
         if evt.type == KEYDOWN:
+            #Player 1 controls
             if evt.key == K_d:
                 moveInGrid("right", 6, 9, 1)
             if evt.key == K_a:
@@ -1311,6 +1355,7 @@ while running:
                 moveInGrid("down", 6, 9, 1)
             if evt.key == K_w:
                 moveInGrid("up", 6, 9, 1)
+            #player 2 controls
             if evt.key == K_l:
                 moveInGrid("right", 6, 9, 2)
             if evt.key == K_j:
@@ -1319,6 +1364,7 @@ while running:
                 moveInGrid("down", 6, 9, 2)
             if evt.key == K_i:
                 moveInGrid("up", 6, 9, 2)
+            # player 1 card selection buttons
             if evt.key == K_1:
                 blueInd = 0
             if evt.key == K_2:
@@ -1327,6 +1373,7 @@ while running:
                 blueInd = 2
             if evt.key == K_4:
                 blueInd = 3
+            # player 2 card selection buttons
             if evt.key == K_7:
                 redInd = 0
             if evt.key == K_8:
@@ -1336,20 +1383,24 @@ while running:
             if evt.key == K_0:
                 redInd = 3
             if evt.key == K_e:
+                # get current selected deck for blue player
                 currDeckBlue = [blueFinalCards[i] for i in range(4)]
+                # find the index of the selected card
                 bIndex = faceCards.index(currDeckBlue[blueInd])
+                # get troop type and card type using the animation path
                 parentKeys = findKeys(faceCardsPath[bIndex], animationPicker)
                 troopType = parentKeys[0]
                 cardType = parentKeys[1]
+                # set the elixir cost based on troop type
                 if troopType == "Wizard":
                     elixirCost = 5
                 elif troopType == "Barbarian":
                     elixirCost = 3
                 elif troopType == "Golem":
                     elixirCost = 7
-                else:
-                    elixirCost = 5
                 if blueElixir >= elixirCost:
+                    # making a new object using the class constructor according to the troop type
+                    # passing in all the stats and animations from the animation picker
                     if troopType == "Wizard":
                         blueTroops.append(Wizard("blue", 250, 80, 20, 2, blueTopTowerPath, bluePlayerSelect.centerx, bluePlayerSelect.centery,
                                                 frameCounter, 
@@ -1374,19 +1425,26 @@ while running:
                                                 animationPicker[troopType][cardType]["attackAnim"],
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
-
-                    blueElixir -= elixirCost 
+                    # subtract elixir cost
+                    blueElixir -= elixirCost
+                    # swap card out of deck after using 
                     for a in blueFinalCards:
                         if currDeckBlue.count(a) == 0:
                             blueFinalCards[blueInd], blueFinalCards[4] = blueFinalCards[4], blueFinalCards[blueInd]
 
 
             if evt.key == K_u:
+                #doing the same for the red same 
+
+                # get current selected deck for red player
                 currDeckRed = [redFinalCards[i] for i in range(4)]
+                # find the index of the selected card
                 rIndex = faceCards.index(currDeckRed[redInd])
+                # get troop type and card type using the animation path
                 parentKeys = findKeys(faceCardsPath[rIndex], animationPicker)
                 troopType = parentKeys[0]
                 cardType = parentKeys[1]
+                # set the elixir cost based on troop type
                 if troopType == "Wizard":
                     elixirCost = 5
                 elif troopType == "Barbarian":
@@ -1396,6 +1454,8 @@ while running:
                 # else:
                 #     elixir_cost = 5
                 if redElixir >= elixirCost:
+                    # making a new object using the class constructor according to the troop type
+                    # passing in all the stats and animations from the animation picker
                     if troopType == "Wizard":
                         redTroops.append(Wizard("red", 250, 80, 20, 2, redTopTowerPath, redPlayerSelect.centerx, redPlayerSelect.centery,
                                                 frameCounter, 
@@ -1420,25 +1480,26 @@ while running:
                                                 animationPicker[troopType][cardType]["attackAnim"],
                                                 animationPicker[troopType][cardType]["runIndex"],
                                                 animationPicker[troopType][cardType]["deadAnim"]))
-                redElixir -= elixirCost  
-                for a in redFinalCards:
-                    if currDeckRed.count(a) == 0:
-                        redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
+                    # subtract elixir cost                    
+                    redElixir -= elixirCost  
+                    # swap card out of deck after using 
+                    for a in redFinalCards:
+                        if currDeckRed.count(a) == 0:
+                            redFinalCards[redInd], redFinalCards[4] = redFinalCards[4], redFinalCards[redInd]
 
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
     pressed_keys = key.get_pressed()
     
     if screenNum == 1:
-        screen.fill(BLACK)
+        # Main Menu Screen
+        # draw the main background and logo and the button images        
         screen.blit(mainBackground, (0, 0))
-        draw.rect(screen, GREEN, PlayBox)
-        screen.blit(playText,(PlayBox[0]+140,PlayBox[1]+20))
-        draw.rect(screen, BLUE, HowToPlayBox)
-        screen.blit(HowToPlayText,(HowToPlayBox[0]+30,HowToPlayBox[1]+20))
-        draw.rect(screen, GREY, SettingsBox)
-        screen.blit(settingsText,(SettingsBox[0]+90,SettingsBox[1]+20))
+        screen.blit(playpic,(PlayBox[0],PlayBox[1]))
+        screen.blit(HowToPlaypic,(HowToPlayBox[0],HowToPlayBox[1]))
+        screen.blit(settingspic,(SettingsBox[0],SettingsBox[1]))
 
+        #go to respective screens when the buttons are clicked
         if PlayBox.collidepoint(mx, my) and mb[0]:
             screenNum = 2
         if HowToPlayBox.collidepoint(mx, my) and mb[0]:
@@ -1745,7 +1806,7 @@ while running:
         for troop in blueTroops:
             troop.drawSprite()
 
-            
+
         for troop in redTroops:
             if isinstance(troop, Wizard):
                 troop.attack(blueTroops)
@@ -1788,46 +1849,55 @@ while running:
             winner = "red"
 
     elif screenNum == 4:
+        # game instructions screen
         screen.fill(BLACK)
-        draw.rect(screen,BLACK,backRect)
-        screen.blit(backText,(backRect[0]+30, backRect[1]+40))
+        draw.rect(screen, BLACK, backRect)  # draw the back button background
+        screen.blit(backText, (backRect[0]+30, backRect[1]+40))  # draw the "back" text
 
+        # draw the game description box
         textRect = Rect(50, 50, 1350, 300)
         renderText(screen, gameDescription, gameDescriptionFont, WHITE, textRect)
 
+        # if player clicks back, go back to main menu
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
 
-
     elif screenNum == 5:
+        # settings screen
         screen.fill(BLACK)
-        draw.rect(screen, BLACK, backRect)
-        screen.blit(backText, (backRect[0]+30, backRect[1]+40))
-        
-        volumeBar = Rect(400, 200, 300, 10)
-        volumeKnob = int(400 + (currentVolume * 300))
+        screen.blit(settingsbg, (0, 0))  # draw the settings background
+        screen.blit(backText, (backRect[0]+30, backRect[1]+40))  # draw the "back" text
+
+        # draw volume bar and knob
+        volumeBar = Rect(1100, 200, 10, 300)
+        knobY = int(200 + (1 - currentVolume) * 300)
         draw.rect(screen, GREY, volumeBar)
-        draw.rect(screen, WHITE, (volumeKnob-10, 190, 20, 30))
-        
+        draw.rect(screen, WHITE, (1090, knobY-10, 30, 20))
+
+        # display volume % text
         volText = textfont.render(f"Volume: {int(currentVolume*100)}%", True, WHITE)
-        screen.blit(volText, (400, 150))
+        screen.blit(volText, (1000, 150))
 
+        # change volume if user clicks and drags on the bar
         if mb[0]:
-            if mx >= 400 and mx <= 700:  
-                if my >= 190 and my <= 210:
-                    currentVolume = (mx - 400) / 300 
-                    if currentVolume > 1: currentVolume = 1
-                    if currentVolume < 0: currentVolume = 0
-                    
-                    if not isMuted:
-                        mixer.music.set_volume(currentVolume)
+            #check if mouse is within the volume bar area
+            if mx >= 1100 and mx <= 1110 and my >= 200 and my <= 500:
+                # calculate the new volume based on mouse position
+                currentVolume = 1 - ((my - 200) / 300)
+                # make sure volume stays between 0 and 1
+                currentVolume = max(0, min(1, currentVolume))
+                #if not muted set teh volume
+                if not isMuted:
+                    mixer.music.set_volume(currentVolume)
 
-        muteButton = Rect(750, 190, 160, 50)
-        buttonColor = (0, 200, 0) if isMuted else (200, 0, 0)  
+        # mute/unmute button
+        muteButton = Rect(1195, 130, 160, 50)
+        buttonColor = (0, 200, 0) if isMuted else (200, 0, 0)  # green if muted, red if not
         draw.rect(screen, buttonColor, muteButton)
         buttonText = textfont.render("Unmute" if isMuted else "Mute", True, WHITE)
-        screen.blit(buttonText, (770, 200))
-        
+        screen.blit(buttonText, (1210, 140))
+
+        # toggle mute on click
         if muteButton.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
             isMuted = not isMuted
             if isMuted:
@@ -1835,43 +1905,53 @@ while running:
             else:
                 mixer.music.set_volume(currentVolume)
 
-        fpsButtons = [(400, 300, 80, 40, 30), 
-                    (500, 300, 80, 40, 60),
-                    (600, 300, 80, 40, 120)]
-        
+        # list of fps buttons to pick how smooth the game runs
+        fpsButtons = [(200, 200, 80, 40, 30), 
+                    (200, 300, 80, 40, 60),
+                    (200, 400, 80, 40, 120)]
+
         for button in fpsButtons:
+            #get the button properties
             x, y, w, h, fps = button
+            #make a rectangle for the button
             buttonRect = Rect(x, y, w, h)
-            color = GREEN if currentFps == fps else GREY
+            #make the button
+            color = GREEN if currentFps == fps else GREY  # highlight selected fps
             draw.rect(screen, color, buttonRect)
             text = textfont.render(str(fps), True, WHITE)
             screen.blit(text, (x+25, y+10))
-            
+
+            # change fps when clicked
             if buttonRect.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
                 currentFps = fps
                 myClock.tick(fps)
 
-        toggleButton = Rect(400, 370, 250, 50)
+        # toggle to show fps in top right
+        toggleButton = Rect(200, 120, 250, 50)
         toggleColor = BLUE if showFps else GREY
         draw.rect(screen, toggleColor, toggleButton)
         toggleText = textfont.render("Show FPS: " + ("ON" if showFps else "OFF"), True, WHITE)
-        screen.blit(toggleText, (420, 380))
-        
+        screen.blit(toggleText, (220, 130))
+
+        # turn fps display on and off
         if toggleButton.collidepoint(mx, my) and mb[0] and not prev_mb[0]:
             showFps = not showFps
 
-        
+        # go back to main menu
         if backRect.collidepoint(mx, my) and mb[0]:
             screenNum = 1
 
+    # if fps toggle is on draw fps on screen at all times
     if showFps:
         fps = int(myClock.get_fps())
         fpsText = textfont.render(f"FPS: {fps}", True, YELLOW)
         screen.blit(fpsText, (width-150, 10))
 
     elif screenNum == 7:
+        # shows the game winner screen 
         screen.fill(BLACK)
-        
+
+        # draw the winner text based on who won
         if winner == "blue":
             screen.blit(BluevictorText, (550, 300))
             draw.rect(screen, BLUE, (0, 0, width, 20)) 
@@ -1880,26 +1960,25 @@ while running:
             screen.blit(RedvictorText, (550, 300))
             draw.rect(screen, RED, (0, 0, width, 20))
             draw.rect(screen, RED, (0, height-20, width, 20))
-        else: 
+        else:
             tieText = frontFont.render("It's a TIE!", True, WHITE)
             screen.blit(tieText, (550, 300))
             draw.rect(screen, YELLOW, (0, 0, width, 20))
             draw.rect(screen, YELLOW, (0, height-20, width, 20))
 
+        # draw home button and text
         draw.rect(screen, GREEN, homeButton)
         screen.blit(homeText, (homeButton.x + 30, homeButton.y + 15))
-        
 
+        # when clicked, reset everything and go to home screen
         if homeButton.collidepoint(mx, my) and mb[0]:
             screenNum = 1
-            # Reset everything
             blueTroops.clear()
             redTroops.clear()
             blueElixir = 6
             redElixir = 6
-            # Reset towers with FULL health
             blueTowers = [
-                Tower("blue", 270, 190, sideTower, 800),  # Add health parameter
+                Tower("blue", 270, 190, sideTower, 800),  
                 Tower("blue", 250, 325, mainTower, 800),
                 Tower("blue", 270, 510, sideTower, 800)
             ]
@@ -1908,7 +1987,6 @@ while running:
                 Tower("red", 1050, 325, mainTower, 800),
                 Tower("red", 1070, 510, sideTower, 800)
             ]
-            # Reset other game state variables
             winner = ""
             isGameActive = False
             blueReady = False
@@ -1917,11 +1995,12 @@ while running:
             waitRed = False
             blueReshuffleCount = 0
             redReshuffleCount = 0
-            # Clear final cards so new ones get generated
             blueFinalCards.clear()
             redFinalCards.clear()
 
+    # control the game speed using selected fps
     myClock.tick(currentFps)
+
     prev_mb = mb
 
     display.flip()
