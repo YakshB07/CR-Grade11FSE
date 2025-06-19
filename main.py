@@ -207,7 +207,6 @@ class Wizard:
             
 # Draw the wizard and its health bar 
     def drawSprite(self):
-        
         if self.dead and self.deadAnim:
             frame = int(self.deadFrameCounter)
             if frame < len(self.deadAnim):
@@ -247,7 +246,7 @@ class Wizard:
         health_bar_rect = Rect(x, y, int(barWidth * health_ratio), barHeight)
         border_rect = Rect(x, y, barWidth, barHeight)
         if self.side == "red":
-            self.attackBox = Rect(self.sizeRect.centerx-self.attackRad*1.5, self.sizeRect.centery-self.attackRad/2, self.attackRad*2, self.attackRad)
+            self.attackBox = Rect(self.sizeRect.centerx-self.attackRad/2, self.sizeRect.centery-self.attackRad, self.attackRad*2.2, self.attackRad*2)
             draw.rect(screen, (255, 0, 0), health_bar_rect)
             draw.rect(screen, (105, 5, 5), Rect(x + health_bar_rect.width, y, barWidth - health_bar_rect.width, barHeight))
             draw.rect(screen, (105, 8, 8), border_rect, 2)
@@ -300,21 +299,18 @@ class Wizard:
             for enemy in enemies:
                 if not enemy.dead and self.attackBox.colliderect(enemy.sizeRect):
                     inRange = True
+                    targetEnemy = enemy
                     break
             # If an enemy is in range, attack them
             if inRange:
-                self.attacking = True
-
-            # only deal damage if the wizard is attacking and the frame counter is at the last frame of the attack animation
-                if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
-                    for enemy in enemies:
-                        if not enemy.dead:
-                            dx = self.sizeRect.centerx - enemy.sizeRect.centerx
-                            dy = self.sizeRect.centery - enemy.sizeRect.centery
-                            dist = (dx**2 + dy**2) ** 0.5
-                            if dist <= self.attackRadius:
-                                enemy.health -= self.damage
-                    self.hasDealtDamage = True 
+                    self.attacking = True
+                # only deal damage if the wizard is attacking and the frame counter is at the last frame of the attack animation
+                    if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
+                        targetEnemy.health -= self.damage  
+                        self.hasDealtDamage = True 
+                        print("Attacked")
+                    else:
+                        self.hasDealtDamage = False
             else:
                 self.attacking = False
                 self.hasDealtDamage = False
@@ -549,14 +545,7 @@ class Golem:
             self.animationList = self.attackAnim
         else:
             self.animationList = self.runAnim
-        # for enemy in enemies:
-        #     if self.detectBox.colliderect(enemy.sizeRect):
-        #         self.isFollowing = True
-        #         print(self.isFollowing)
-        #         opponent = enemy
-        #         break
-        #     else:
-        #         self.isFollowing = False
+        
         if self.isFollowing == False:
             if self.posIndex >= len(self.path):
                 return
@@ -683,16 +672,6 @@ class Golem:
 
 
 
-
-# Blue Towers
-        screen.blit(sideTower, (270, 190))
-        screen.blit(mainTower, (250, 325))
-        screen.blit(sideTower, (270, 510))
-        
-        # Red Towers
-        screen.blit(sideTower, (1070, 190))      
-        screen.blit(mainTower, (1050, 325))
-        screen.blit(sideTower, (1070, 510))
 
 mainTower = transform.scale(image.load("assets/towers/mainTower.png", "png"), (193/2, 254/2))
 sideTower = transform.scale(image.load("assets/towers/miniTower.png", "png"), (106/2, 178/2))
