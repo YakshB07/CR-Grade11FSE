@@ -42,6 +42,7 @@ def determinePath(troops, topPath, botPath, kingPos, towers):
                 troop.path = botPath
         # If the side tower is destroyed go to king tower path
             troop.pathFound = True
+    if len(towers) !=0:
         if towers[0].image != sideTower and troop.path == topPath:
             troop.path[-1] = kingPos
             if troop.posIndex >= len(troop.path):
@@ -50,6 +51,8 @@ def determinePath(troops, topPath, botPath, kingPos, towers):
             troop.path[-1] = kingPos
             if troop.posIndex >= len(troop.path):
                 troop.posIndex = len(troop.path) - 1
+    else:
+        return
 
                 
         
