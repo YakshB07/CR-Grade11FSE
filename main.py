@@ -498,6 +498,9 @@ class Barbarian:
             self.animationList = self.attackAnim
             return True
         else:
+            self.attacking = False
+            self.hasDealtDamage = False
+            self.animationList = self.runAnim
             return False
 
 
@@ -673,18 +676,11 @@ class Golem:
             self.animationList = self.attackAnim
             return True
         else:
+            self.attacking = False
+            self.hasDealtDamage = False
+            self.animationList = self.runAnim
             return False
 
-        self.attackingTower = inRange
-        if inRange:
-            print("attacking tower")
-            if not self.attacking:
-                self.hasDealtDamage = False
-            self.attacking = True
-            self.animationList = self.attackAnim
-            if int(self.frameCounter) == len(self.attackAnim) - 1 and not self.hasDealtDamage:
-                tower.health -= self.damage
-                self.hasDealtDamage = True
 
 
 
@@ -1006,7 +1002,7 @@ Step 1: Card Selection
 
 Step 2: The Battle
     - Player 1: W, A, S, D to place cards
-    - Player 2: I, J, K, L to place cards
+    - Player 2: I, J, K, L to selct where to place and U to place your desire
     Each card costs elixir — manage it wisely and play smart to attack and defend.
 
 Step 3: Destroy the Towers
